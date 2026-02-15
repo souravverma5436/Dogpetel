@@ -1,0 +1,9 @@
+# Railway ignore file
+node_modules/
+client/node_modules/
+.git/
+.vscode/
+*.md
+*.bat
+*.txt
+!database/*.sql

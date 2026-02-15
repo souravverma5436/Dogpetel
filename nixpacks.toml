@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["php82", "php82Extensions.pdo", "php82Extensions.pdo_mysql", "php82Extensions.mysqli"]
+nixPkgs = ["nodejs_20", "php82", "php82Extensions.pdo", "php82Extensions.pdo_mysql", "php82Extensions.mysqli"]
 
 [phases.install]
 cmds = ["cd client && npm install"]
