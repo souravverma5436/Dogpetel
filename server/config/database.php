@@ -1,5 +1,6 @@
 <?php
 // Database Configuration and Connection
+// Updated for Railway external MySQL connection
 
 // Load environment variables manually (without composer)
 // Priority: System env vars (Railway) > .env file > defaults
