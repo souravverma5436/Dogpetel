@@ -5,7 +5,11 @@ nixPkgs = ["nodejs_20", "php82", "php82Extensions.pdo", "php82Extensions.pdo_mys
 cmds = ["cd client && npm install"]
 
 [phases.build]
-cmds = ["cd client && npm run build"]
+cmds = [
+  "cd client && npm run build",
+  "echo 'Build complete. Checking dist directory...'",
+  "ls -la client/dist || echo 'Warning: dist directory not found'"
+]
 
 [start]
-cmd = "php -S 0.0.0.0:${PORT:-8080} -t server"
+cmd = "bash start.sh"

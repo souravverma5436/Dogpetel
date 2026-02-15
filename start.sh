@@ -5,4 +5,7 @@
 PORT=${PORT:-8080}
 
 echo "Starting PHP server on port $PORT..."
-php -S 0.0.0.0:$PORT -t server
+echo "Serving from: $(pwd)"
+
+# Start PHP server with router
+php -S 0.0.0.0:$PORT -t server server/index.php

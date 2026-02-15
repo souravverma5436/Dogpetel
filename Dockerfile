@@ -39,5 +39,5 @@ WORKDIR /app
 # Expose port
 EXPOSE 8080
 
-# Start PHP server
-CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-8080} -t server"]
+# Start PHP server with router
+CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-8080} -t server server/index.php"]
