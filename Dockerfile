@@ -46,37 +46,9 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure Apache
 RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
 
-# Create Apache VirtualHost configuration
-RUN printf '<VirtualHost *:${PORT}>\n\
-    ServerAdmin webmaster@localhost\n\
-    DocumentRoot /var/www/html\n\
-    \n\
-    <Directory /var/www/html>\n\
-        Options Indexes FollowSymLinks\n\
-        AllowOverride All\n\
-        Require all granted\n\
-    </Directory>\n\
-    \n\
-    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
-    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
-</VirtualHost>\n' > /etc/apache2/sites-available/000-default.conf
-
-# Create startup script
-RUN printf '#!/bin/bash\n\
-set -e\n\
-\n\
-# Use PORT from environment or default to 10000\n\
-PORT=${PORT:-10000}\n\
-\n\
-# Update Apache ports configuration\n\
-echo "Listen $PORT" > /etc/apache2/ports.conf\n\
-\n\
-# Update VirtualHost to use the PORT\n\
-sed -i "s/${PORT}/$PORT/g" /etc/apache2/sites-available/000-default.conf\n\
-\n\
-# Start Apache in foreground\n\
-apache2-foreground\n' > /usr/local/bin/start-apache.sh
-
+# Copy Apache configuration and startup script
+COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
+COPY start-apache.sh /usr/local/bin/start-apache.sh
 RUN chmod +x /usr/local/bin/start-apache.sh
 
 # Expose port
