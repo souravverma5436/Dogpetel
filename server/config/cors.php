@@ -1,12 +1,10 @@
 <?php
 // CORS Configuration
 
-// Allowed origins (add your Railway domain here after deployment)
+// Allowed origins
 $allowed_origins = [
     'http://localhost:5173',
     'http://localhost:3000',
-    // Add your Railway domain here after deployment:
-    // 'https://your-railway-domain.up.railway.app'
 ];
 
 // Get the origin from the request
@@ -15,8 +13,11 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 // Check if origin is allowed
 if (in_array($origin, $allowed_origins)) {
     header("Access-Control-Allow-Origin: $origin");
-} elseif (strpos($origin, '.railway.app') !== false || strpos($origin, '.up.railway.app') !== false) {
-    // Automatically allow Railway domains
+} elseif (strpos($origin, '.railway.app') !== false || 
+          strpos($origin, '.up.railway.app') !== false ||
+          strpos($origin, '.vercel.app') !== false ||
+          strpos($origin, '.onrender.com') !== false) {
+    // Automatically allow Railway, Vercel, and Render domains
     header("Access-Control-Allow-Origin: $origin");
 } else {
     // Default to localhost for development
