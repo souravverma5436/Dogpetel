@@ -36,55 +36,43 @@ RUN echo '<?php header("Content-Type: application/json"); echo json_encode(["sta
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Configure Apache to use PORT environment variable
+# Configure Apache
 RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
 
-# Create Apache configuration that listens on $PORT
-COPY <<EOF /etc/apache2/sites-available/000-default.conf
-<VirtualHost *:\${PORT}>
-    ServerAdmin webmaster@localhost
-    DocumentRoot /var/www/html
-    
-    <Directory /var/www/html>
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
-    
-    # API routing
-    <IfModule mod_rewrite.c>
-        RewriteEngine On
-        RewriteBase /
-        
-        # Route API requests to api directory
-        RewriteCond %{REQUEST_URI} ^/api/
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteRule ^api/(.*)$ /api/\$1.php [L,QSA]
-    </IfModule>
-    
-    ErrorLog \${APACHE_LOG_DIR}/error.log
-    CustomLog \${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>
-EOF
+# Create Apache VirtualHost configuration
+RUN echo '<VirtualHost *:${PORT}>\n\
+    ServerAdmin webmaster@localhost\n\
+    DocumentRoot /var/www/html\n\
+    \n\
+    <Directory /var/www/html>\n\
+        Options Indexes FollowSymLinks\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+    \n\
+    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
+    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
-# Create startup script that sets PORT
-COPY <<'EOF' /usr/local/bin/start-apache.sh
-#!/bin/bash
-set -e
-
-# Use PORT from environment or default to 10000
-export PORT=\${PORT:-10000}
-
-# Update Apache ports configuration
-echo "Listen \${PORT}" > /etc/apache2/ports.conf
-
-# Start Apache in foreground
-apache2-foreground
-EOF
+# Create startup script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+# Use PORT from environment or default to 10000\n\
+PORT=${PORT:-10000}\n\
+\n\
+# Update Apache ports configuration\n\
+echo "Listen $PORT" > /etc/apache2/ports.conf\n\
+\n\
+# Update VirtualHost to use the PORT\n\
+sed -i "s/\${PORT}/$PORT/g" /etc/apache2/sites-available/000-default.conf\n\
+\n\
+# Start Apache in foreground\n\
+apache2-foreground' > /usr/local/bin/start-apache.sh
 
 RUN chmod +x /usr/local/bin/start-apache.sh
 
-# Expose port (Render will set this via $PORT)
+# Expose port
 EXPOSE 10000
 
 # Start Apache
