@@ -24,12 +24,25 @@ class Database {
     private $connection;
     
     private function __construct() {
-        // Priority: getenv (Railway) > $_ENV (.env file) > defaults
-        $host = getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? 'localhost');
-        $port = getenv('DB_PORT') ?: ($_ENV['DB_PORT'] ?? '3306');
-        $dbname = getenv('DB_NAME') ?: ($_ENV['DB_NAME'] ?? 'petel_db');
-        $username = getenv('DB_USER') ?: ($_ENV['DB_USER'] ?? 'root');
-        $password = getenv('DB_PASS') ?: ($_ENV['DB_PASS'] ?? '');
+        // Check if MYSQL_URL is provided (Railway service reference)
+        $mysqlUrl = getenv('MYSQL_URL') ?: ($_ENV['MYSQL_URL'] ?? '');
+        
+        if ($mysqlUrl) {
+            // Parse MYSQL_URL: mysql://user:pass@host:port/dbname
+            $parts = parse_url($mysqlUrl);
+            $host = $parts['host'] ?? 'localhost';
+            $port = $parts['port'] ?? '3306';
+            $username = $parts['user'] ?? 'root';
+            $password = $parts['pass'] ?? '';
+            $dbname = ltrim($parts['path'] ?? '/railway', '/');
+        } else {
+            // Fallback to individual environment variables
+            $host = getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? 'localhost');
+            $port = getenv('DB_PORT') ?: ($_ENV['DB_PORT'] ?? '3306');
+            $dbname = getenv('DB_NAME') ?: ($_ENV['DB_NAME'] ?? 'petel_db');
+            $username = getenv('DB_USER') ?: ($_ENV['DB_USER'] ?? 'root');
+            $password = getenv('DB_PASS') ?: ($_ENV['DB_PASS'] ?? '');
+        }
         
         try {
             // Build DSN with port support
@@ -43,7 +56,8 @@ class Database {
                 [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES => false
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                    PDO::ATTR_TIMEOUT => 10
                 ]
             );
             
