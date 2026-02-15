@@ -25,14 +25,18 @@ class Database {
     private function __construct() {
         // Priority: getenv (Railway) > $_ENV (.env file) > defaults
         $host = getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? 'localhost');
+        $port = getenv('DB_PORT') ?: ($_ENV['DB_PORT'] ?? '3306');
         $dbname = getenv('DB_NAME') ?: ($_ENV['DB_NAME'] ?? 'petel_db');
         $username = getenv('DB_USER') ?: ($_ENV['DB_USER'] ?? 'root');
         $password = getenv('DB_PASS') ?: ($_ENV['DB_PASS'] ?? '');
         
         try {
+            // Build DSN with port support
+            $dsn = "mysql:host=$host;port=$port;charset=utf8mb4";
+            
             // First connect without database to ensure it exists
             $this->connection = new PDO(
-                "mysql:host=$host;charset=utf8mb4",
+                $dsn,
                 $username,
                 $password,
                 [
@@ -52,6 +56,7 @@ class Database {
                 'error' => 'Database connection failed. Please check your database configuration.',
                 'details' => $e->getMessage(),
                 'host' => $host,
+                'port' => $port,
                 'database' => $dbname
             ]));
         }
