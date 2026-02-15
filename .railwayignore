@@ -7,3 +7,8 @@ client/node_modules/
 *.bat
 *.txt
 !database/*.sql
+
+# Ignore local .env files - Railway uses its own environment variables
+.env
+server/.env
+client/.env
