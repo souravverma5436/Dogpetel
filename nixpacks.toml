@@ -8,4 +8,4 @@ cmds = ["cd client && npm install"]
 cmds = ["cd client && npm run build"]
 
 [start]
-cmd = "php -S 0.0.0.0:$PORT -t server"
+cmd = "php -S 0.0.0.0:${PORT:-8080} -t server"

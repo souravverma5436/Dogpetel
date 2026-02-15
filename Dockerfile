@@ -40,4 +40,4 @@ WORKDIR /app
 EXPOSE 8080
 
 # Start PHP server
-CMD php -S 0.0.0.0:$PORT -t server
+CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-8080} -t server"]
