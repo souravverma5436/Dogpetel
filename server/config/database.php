@@ -2,6 +2,7 @@
 // Database Configuration and Connection
 
 // Load environment variables manually (without composer)
+// Priority: System env vars (Railway) > .env file > defaults
 $envFile = __DIR__ . '/../.env';
 
 if (file_exists($envFile)) {
@@ -10,7 +11,10 @@ if (file_exists($envFile)) {
         if (strpos(trim($line), '#') === 0) continue;
         if (strpos($line, '=') === false) continue;
         list($key, $value) = explode('=', $line, 2);
-        $_ENV[trim($key)] = trim($value);
+        // Only set if not already set by system
+        if (!getenv(trim($key))) {
+            $_ENV[trim($key)] = trim($value);
+        }
     }
 }
 
@@ -19,10 +23,11 @@ class Database {
     private $connection;
     
     private function __construct() {
-        $host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
-        $dbname = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'petel_db';
-        $username = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'root';
-        $password = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: '';
+        // Priority: getenv (Railway) > $_ENV (.env file) > defaults
+        $host = getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? 'localhost');
+        $dbname = getenv('DB_NAME') ?: ($_ENV['DB_NAME'] ?? 'petel_db');
+        $username = getenv('DB_USER') ?: ($_ENV['DB_USER'] ?? 'root');
+        $password = getenv('DB_PASS') ?: ($_ENV['DB_PASS'] ?? '');
         
         try {
             // First connect without database to ensure it exists
