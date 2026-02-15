@@ -47,7 +47,7 @@ RUN chown -R www-data:www-data /var/www/html \
 RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
 
 # Create Apache VirtualHost configuration
-RUN echo '<VirtualHost *:${PORT}>\n\
+RUN printf '<VirtualHost *:${PORT}>\n\
     ServerAdmin webmaster@localhost\n\
     DocumentRoot /var/www/html\n\
     \n\
@@ -59,10 +59,10 @@ RUN echo '<VirtualHost *:${PORT}>\n\
     \n\
     ErrorLog ${APACHE_LOG_DIR}/error.log\n\
     CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+</VirtualHost>\n' > /etc/apache2/sites-available/000-default.conf
 
 # Create startup script
-RUN echo '#!/bin/bash\n\
+RUN printf '#!/bin/bash\n\
 set -e\n\
 \n\
 # Use PORT from environment or default to 10000\n\
@@ -72,10 +72,10 @@ PORT=${PORT:-10000}\n\
 echo "Listen $PORT" > /etc/apache2/ports.conf\n\
 \n\
 # Update VirtualHost to use the PORT\n\
-sed -i "s/\${PORT}/$PORT/g" /etc/apache2/sites-available/000-default.conf\n\
+sed -i "s/${PORT}/$PORT/g" /etc/apache2/sites-available/000-default.conf\n\
 \n\
 # Start Apache in foreground\n\
-apache2-foreground' > /usr/local/bin/start-apache.sh
+apache2-foreground\n' > /usr/local/bin/start-apache.sh
 
 RUN chmod +x /usr/local/bin/start-apache.sh
 
