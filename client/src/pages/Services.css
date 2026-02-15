@@ -1,0 +1,160 @@
+.page-hero {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 100px 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.page-hero h1 {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.page-hero p {
+  font-size: 20px;
+  opacity: 0.9;
+}
+
+.services-detailed {
+  display: grid;
+  gap: 40px;
+}
+
+.service-detailed-card {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s;
+}
+
+.service-detailed-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.service-header {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+.service-icon-large {
+  font-size: 80px;
+  flex-shrink: 0;
+}
+
+.service-header h2 {
+  font-size: 32px;
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+
+.service-desc {
+  font-size: 18px;
+  color: var(--text-light);
+}
+
+.service-features h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: var(--text-dark);
+}
+
+.service-features ul {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.service-features li {
+  font-size: 16px;
+  color: var(--text-light);
+  padding: 10px;
+  background: var(--bg-light);
+  border-radius: 8px;
+}
+
+.why-choose {
+  background: var(--bg-light);
+  padding: 80px 0;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.feature-box {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: all 0.3s;
+}
+
+.feature-box:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--shadow-lg);
+}
+
+.feature-icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+.feature-box h3 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: var(--text-dark);
+}
+
+.feature-box p {
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .page-hero h1 {
+    font-size: 36px;
+  }
+
+  .page-hero p {
+    font-size: 18px;
+  }
+
+  .service-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .service-icon-large {
+    font-size: 60px;
+  }
+
+  .service-header h2 {
+    font-size: 26px;
+  }
+
+  .service-features ul {
+    grid-template-columns: 1fr;
+  }
+}

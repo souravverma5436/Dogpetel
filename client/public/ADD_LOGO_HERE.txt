@@ -1,0 +1,41 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║                    📍 ADD YOUR LOGO HERE                       ║
+║                                                                ║
+║                    PETEL - A Pet Hotel                         ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+🎯 QUICK SETUP:
+   1. Save your logo as: logo.png
+   2. Place it in THIS folder (client/public/)
+   3. Restart dev server
+   4. Done!
+
+📁 EXACT LOCATION:
+   client/public/logo.png
+
+✅ WHAT HAPPENS:
+   - Logo appears in header (all pages)
+   - Logo appears in hero section (home page)
+   - Automatically responsive
+   - No code changes needed!
+
+📋 SPECIFICATIONS:
+   Format: PNG (recommended), JPG, or SVG
+   Size: 60-80px height (header), 400px width (hero)
+   File size: Under 200KB
+   Background: Transparent (PNG) preferred
+
+📖 DETAILED INSTRUCTIONS:
+   See: LOGO_INSTRUCTIONS.md (in this folder)
+   See: ../../../LOGO_SETUP_GUIDE.md (project root)
+
+🆘 NEED HELP?
+   Contact: Komal - +91 82838 83463
+
+═══════════════════════════════════════════════════════════════
+
+Current Status: ⏳ Waiting for logo.png file
+
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,126 @@
+================================================================================
+PETEL PET HOTEL - GITHUB DEPLOYMENT COMMANDS
+================================================================================
+
+STEP 1: PUSH TO GITHUB
+================================================================================
+
+Option A: Use the Batch File (EASIEST - RECOMMENDED)
+-----------------------------------------------------
+Just double-click this file in Windows Explorer:
+    PUSH_TO_GITHUB.bat
+
+That's it! The script will do everything automatically.
+
+
+Option B: Manual Commands (if batch file doesn't work)
+-------------------------------------------------------
+Open Command Prompt or PowerShell in your project folder and run:
+
+git init
+git add .
+git commit -m "Initial commit - PETEL Pet Hotel"
+git branch -M main
+git remote add origin https://github.com/souravverma5436/Dogpetel.git
+git push -u origin main
+
+
+DONE! Your code is now on GitHub at:
+https://github.com/souravverma5436/Dogpetel
+
+================================================================================
+
+STEP 2: DEPLOY ONLINE
+================================================================================
+
+IMPORTANT: Vercel does NOT support PHP!
+Your project uses PHP backend, so you need PHP hosting.
+
+Choose ONE of these options:
+
+Option 1: Railway (Free, Easy) - RECOMMENDED FOR TESTING
+---------------------------------------------------------
+1. Go to: https://railway.app
+2. Sign up with GitHub
+3. Click "New Project" → "Deploy from GitHub repo"
+4. Select: souravverma5436/Dogpetel
+5. Add MySQL database (click "New" → "Database" → "MySQL")
+6. Set environment variables in Railway dashboard
+7. Import database/schema.sql
+8. Done!
+
+Cost: FREE (500 hours/month)
+Time: 15 minutes
+
+
+Option 2: Hostinger (Best for India) - RECOMMENDED FOR PRODUCTION
+------------------------------------------------------------------
+1. Go to: https://www.hostinger.in
+2. Buy "Premium Web Hosting" (₹149/month)
+3. Login to cPanel
+4. Upload project files via File Manager
+5. Create MySQL database in cPanel
+6. Import database/schema.sql via phpMyAdmin
+7. Edit server/.env with database credentials
+8. Done!
+
+Cost: ₹149/month (₹1,788/year)
+Time: 30 minutes
+
+
+Option 3: Heroku (Alternative)
+-------------------------------
+1. Install Heroku CLI from: https://devcenter.heroku.com/articles/heroku-cli
+2. Run: heroku login
+3. Run: heroku create petel-app
+4. Run: heroku addons:create jawsdb:kitefin
+5. Set environment variables in Heroku dashboard
+6. Run: git push heroku main
+
+Cost: FREE tier available
+Time: 20 minutes
+
+================================================================================
+
+STEP 3: AFTER DEPLOYMENT
+================================================================================
+
+Test these features:
+☐ Website loads
+☐ Logo displays
+☐ All pages work
+☐ Pricing shows
+☐ Contact form works
+☐ Admin login works (password: komal123)
+☐ Admin dashboard shows data
+
+================================================================================
+
+NEED HELP?
+================================================================================
+
+Read these files:
+- START_HERE.md - Quick start guide
+- DEPLOYMENT_STEPS.md - Detailed deployment steps
+- GITHUB_DEPLOYMENT_GUIDE.md - Complete guide
+- TROUBLESHOOTING.md - Common issues
+
+Contact: +91 82838 83463 (Komal)
+
+================================================================================
+
+QUICK REFERENCE
+================================================================================
+
+Your GitHub Repo: https://github.com/souravverma5436/Dogpetel
+Admin Password: komal123
+Database Name: petel_db
+Contact: +91 82838 83463
+
+================================================================================
+
+READY? START WITH STEP 1!
+
+Double-click: PUSH_TO_GITHUB.bat
+
+================================================================================
