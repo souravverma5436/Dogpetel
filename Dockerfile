@@ -32,6 +32,12 @@ COPY server/ ./
 # Create health endpoint
 RUN echo '<?php header("Content-Type: application/json"); echo json_encode(["status" => "healthy", "timestamp" => time()]);' > /var/www/html/health.php
 
+# Create test endpoint to verify file structure
+RUN echo '<?php phpinfo();' > /var/www/html/info.php
+
+# List files for debugging
+RUN ls -la /var/www/html/ > /var/www/html/files.txt
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
