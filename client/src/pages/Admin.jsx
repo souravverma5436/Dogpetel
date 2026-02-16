@@ -3,13 +3,18 @@ import axios from 'axios'
 import { API_BASE_URL } from '../config'
 import './Admin.css'
 
-// Configure axios to send cookies with requests
-axios.defaults.withCredentials = true
+// Configure axios to send JWT token with requests
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('admin_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
 
 function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    // Check localStorage on initial load
-    return localStorage.getItem('admin_logged_in') === 'true'
+    return !!localStorage.getItem('admin_token')
   })
   const [password, setPassword] = useState('')
   const [appointments, setAppointments] = useState([])
@@ -20,28 +25,6 @@ function Admin() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
   const [activeTab, setActiveTab] = useState('appointments')
-
-  useEffect(() => {
-    // Check session on mount
-    const checkSession = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/admin/login.php`)
-        if (response.data.logged_in) {
-          setIsLoggedIn(true)
-          localStorage.setItem('admin_logged_in', 'true')
-        } else {
-          setIsLoggedIn(false)
-          localStorage.removeItem('admin_logged_in')
-        }
-      } catch (error) {
-        console.error('Session check failed:', error)
-      }
-    }
-    
-    if (localStorage.getItem('admin_logged_in') === 'true') {
-      checkSession()
-    }
-  }, [])
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -60,10 +43,12 @@ function Admin() {
     e.preventDefault()
     setLoading(true)
     try {
-      await axios.post(`${API_BASE_URL}/admin/login.php`, { password })
-      setIsLoggedIn(true)
-      localStorage.setItem('admin_logged_in', 'true')
-      setMessage({ type: 'success', text: 'Login successful' })
+      const response = await axios.post(`${API_BASE_URL}/admin/login.php`, { password })
+      if (response.data.token) {
+        localStorage.setItem('admin_token', response.data.token)
+        setIsLoggedIn(true)
+        setMessage({ type: 'success', text: 'Login successful' })
+      }
     } catch (error) {
       setMessage({ type: 'error', text: 'Invalid password' })
     } finally {
@@ -95,9 +80,9 @@ function Admin() {
     } catch (error) {
       console.error('Error fetching contacts:', error)
       if (error.response?.status === 401) {
-        // Session expired, logout
+        // Token expired, logout
         setIsLoggedIn(false)
-        localStorage.removeItem('admin_logged_in')
+        localStorage.removeItem('admin_token')
         setMessage({ type: 'error', text: 'Session expired. Please login again.' })
       }
     }
@@ -191,7 +176,7 @@ function Admin() {
         <h1>PETEL Admin Dashboard</h1>
         <button onClick={() => {
           setIsLoggedIn(false)
-          localStorage.removeItem('admin_logged_in')
+          localStorage.removeItem('admin_token')
         }} className="btn btn-secondary">Logout</button>
       </div>
 
