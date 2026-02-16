@@ -20,17 +20,20 @@ function Admin() {
   const [appointments, setAppointments] = useState([])
   const [contacts, setContacts] = useState([])
   const [pricing, setPricing] = useState([])
+  const [gallery, setGallery] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
   const [activeTab, setActiveTab] = useState('appointments')
+  const [newImage, setNewImage] = useState({ image_url: '', title: '', description: '' })
 
   useEffect(() => {
     if (isLoggedIn) {
       fetchAppointments()
       fetchContacts()
       fetchPricing()
+      fetchGallery()
       const interval = setInterval(() => {
         fetchAppointments()
         fetchContacts()
@@ -99,6 +102,17 @@ function Admin() {
     }
   }
 
+  const fetchGallery = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admin/gallery.php`)
+      if (response.data.success) {
+        setGallery(response.data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching gallery:', error)
+    }
+  }
+
   const updateAppointment = async (id, updates) => {
     try {
       await axios.put(`${API_BASE_URL}/admin/appointments.php`, { id, ...updates })
@@ -140,6 +154,45 @@ function Admin() {
       fetchPricing()
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to update price' })
+    }
+  }
+
+  const addImage = async (e) => {
+    e.preventDefault()
+    if (!newImage.image_url) {
+      setMessage({ type: 'error', text: 'Image URL is required' })
+      return
+    }
+    
+    try {
+      await axios.post(`${API_BASE_URL}/admin/gallery.php`, newImage)
+      setMessage({ type: 'success', text: 'Image added to gallery' })
+      setNewImage({ image_url: '', title: '', description: '' })
+      fetchGallery()
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to add image' })
+    }
+  }
+
+  const toggleImageStatus = async (id, currentStatus) => {
+    try {
+      await axios.put(`${API_BASE_URL}/admin/gallery.php`, { id, is_active: !currentStatus })
+      setMessage({ type: 'success', text: 'Image status updated' })
+      fetchGallery()
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to update image' })
+    }
+  }
+
+  const deleteImage = async (id) => {
+    if (!confirm('Are you sure you want to delete this image?')) return
+    
+    try {
+      await axios.delete(`${API_BASE_URL}/admin/gallery.php`, { data: { id } })
+      setMessage({ type: 'success', text: 'Image deleted' })
+      fetchGallery()
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to delete image' })
     }
   }
 
@@ -199,6 +252,12 @@ function Admin() {
           onClick={() => setActiveTab('pricing')}
         >
           Pricing Management
+        </button>
+        <button 
+          className={`tab ${activeTab === 'gallery' ? 'active' : ''}`}
+          onClick={() => setActiveTab('gallery')}
+        >
+          Gallery ({gallery.length})
         </button>
       </div>
 
@@ -407,6 +466,81 @@ function Admin() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'gallery' && (
+        <div className="gallery-section">
+          <h2>Gallery Management</h2>
+          
+          <div className="add-image-form">
+            <h3>Add New Image</h3>
+            <form onSubmit={addImage}>
+              <div className="form-group">
+                <label>Image URL * (Use Imgur, Cloudinary, or any image hosting)</label>
+                <input
+                  type="url"
+                  placeholder="https://example.com/image.jpg"
+                  value={newImage.image_url}
+                  onChange={(e) => setNewImage({...newImage, image_url: e.target.value})}
+                  required
+                />
+                <small>Upload your image to <a href="https://imgur.com/upload" target="_blank" rel="noopener noreferrer">Imgur</a> or <a href="https://cloudinary.com" target="_blank" rel="noopener noreferrer">Cloudinary</a> and paste the URL here</small>
+              </div>
+              <div className="form-group">
+                <label>Title (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="Happy pets at PETEL"
+                  value={newImage.title}
+                  onChange={(e) => setNewImage({...newImage, title: e.target.value})}
+                />
+              </div>
+              <div className="form-group">
+                <label>Description (Optional)</label>
+                <textarea
+                  placeholder="Description of the image..."
+                  value={newImage.description}
+                  onChange={(e) => setNewImage({...newImage, description: e.target.value})}
+                  rows="3"
+                ></textarea>
+              </div>
+              <button type="submit" className="btn btn-primary">Add Image</button>
+            </form>
+          </div>
+
+          <div className="gallery-list">
+            <h3>Current Gallery Images ({gallery.length})</h3>
+            {gallery.length === 0 ? (
+              <div className="no-data">No images in gallery yet</div>
+            ) : (
+              <div className="gallery-grid-admin">
+                {gallery.map((image) => (
+                  <div key={image.id} className={`gallery-card ${!image.is_active ? 'inactive' : ''}`}>
+                    <img src={image.image_url} alt={image.title || 'Gallery image'} />
+                    <div className="gallery-card-info">
+                      <h4>{image.title || 'Untitled'}</h4>
+                      {image.description && <p>{image.description}</p>}
+                      <div className="gallery-card-actions">
+                        <button
+                          onClick={() => toggleImageStatus(image.id, image.is_active)}
+                          className={`btn ${image.is_active ? 'btn-secondary' : 'btn-primary'}`}
+                        >
+                          {image.is_active ? 'Hide' : 'Show'}
+                        </button>
+                        <button
+                          onClick={() => deleteImage(image.id)}
+                          className="btn btn-danger"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -25,6 +25,7 @@ function Header() {
             <Link to="/" className={isActive('/') ? 'active' : ''} onClick={() => setMenuOpen(false)}>Home</Link>
             <Link to="/services" className={isActive('/services') ? 'active' : ''} onClick={() => setMenuOpen(false)}>Services</Link>
             <Link to="/pricing" className={isActive('/pricing') ? 'active' : ''} onClick={() => setMenuOpen(false)}>Pricing</Link>
+            <Link to="/gallery" className={isActive('/gallery') ? 'active' : ''} onClick={() => setMenuOpen(false)}>Gallery</Link>
             <Link to="/about" className={isActive('/about') ? 'active' : ''} onClick={() => setMenuOpen(false)}>About</Link>
             <Link to="/contact" className={isActive('/contact') ? 'active' : ''} onClick={() => setMenuOpen(false)}>Contact</Link>
             <Link to="/admin" className={`admin-link ${isActive('/admin') ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>🔐 Admin</Link>

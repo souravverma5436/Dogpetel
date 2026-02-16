@@ -6,7 +6,8 @@ export const CONTACT_INFO = {
   phoneDisplay: '+91 82838 83463',
   whatsapp: 'https://wa.me/918283883463',
   email: 'komal@petel.com',
-  availability: '24/7 Available'
+  availability: '24/7 Available',
+  instagram: 'https://www.instagram.com/petel_a_doghotel'
 };
 
 export const RAZORPAY_KEY_ID = 'rzp_test_YOUR_KEY_ID'; // Will be fetched from backend

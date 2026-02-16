@@ -34,6 +34,7 @@ function Footer() {
             <div className="social-links">
               <a href={`tel:${CONTACT_INFO.phone}`} className="social-btn">📞 Call</a>
               <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noopener noreferrer" className="social-btn">💬 WhatsApp</a>
+              <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="social-btn">📷 Instagram</a>
             </div>
           </div>
         </div>

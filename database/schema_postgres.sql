@@ -80,6 +80,20 @@ CREATE TABLE IF NOT EXISTS testimonials (
 CREATE INDEX IF NOT EXISTS idx_testimonials_featured ON testimonials(is_featured);
 CREATE INDEX IF NOT EXISTS idx_testimonials_rating ON testimonials(rating);
 
+-- Gallery Table
+CREATE TABLE IF NOT EXISTS gallery (
+    id SERIAL PRIMARY KEY,
+    image_url TEXT NOT NULL,
+    title VARCHAR(255),
+    description TEXT,
+    display_order INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_gallery_active ON gallery(is_active);
+CREATE INDEX IF NOT EXISTS idx_gallery_order ON gallery(display_order);
+
 -- Insert Pricing Packages
 INSERT INTO pricing (package_name, pet_type, duration, price, features, is_popular, display_order) VALUES
 -- Dog Packages
