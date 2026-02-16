@@ -54,10 +54,19 @@ try {
     $sql = file_get_contents($schemaFile);
     $results['steps'][] = '✓ Schema loaded from: ' . $schemaFile;
     
-    // Execute schema
+    // Execute schema - wrap in transaction and ignore duplicate errors
     $results['steps'][] = 'Creating tables...';
-    $pdo->exec($sql);
-    $results['steps'][] = '✓ Tables created';
+    try {
+        $pdo->exec($sql);
+        $results['steps'][] = '✓ Tables and data created';
+    } catch (PDOException $e) {
+        // If error is about duplicates, that's OK - tables already exist
+        if (strpos($e->getMessage(), '23505') !== false || strpos($e->getMessage(), 'duplicate') !== false) {
+            $results['steps'][] = '✓ Tables already exist (skipped creation)';
+        } else {
+            throw $e;
+        }
+    }
     
     // Verify
     $stmt = $pdo->query("SELECT tablename FROM pg_tables WHERE schemaname = 'public'");

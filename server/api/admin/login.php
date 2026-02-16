@@ -1,9 +1,10 @@
 <?php
 // Admin Login API
 
+// Handle CORS first, before any output
 require_once __DIR__ . '/../../config/cors.php';
 
-// Start session
+// Start session after CORS headers
 session_start();
 
 // Get admin password from environment
