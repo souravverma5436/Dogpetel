@@ -32,14 +32,27 @@ try {
     ]);
     $results['steps'][] = '✓ Connected';
     
-    // Read schema
-    $schemaFile = __DIR__ . '/../../database/schema_postgres.sql';
-    if (!file_exists($schemaFile)) {
-        throw new Exception("Schema file not found");
+    // Read schema - try multiple possible paths
+    $possiblePaths = [
+        __DIR__ . '/../../database/schema_postgres.sql',
+        '/var/www/html/database/schema_postgres.sql',
+        __DIR__ . '/../database/schema_postgres.sql'
+    ];
+    
+    $schemaFile = null;
+    foreach ($possiblePaths as $path) {
+        if (file_exists($path)) {
+            $schemaFile = $path;
+            break;
+        }
+    }
+    
+    if (!$schemaFile) {
+        throw new Exception("Schema file not found. Tried: " . implode(', ', $possiblePaths));
     }
     
     $sql = file_get_contents($schemaFile);
-    $results['steps'][] = '✓ Schema loaded';
+    $results['steps'][] = '✓ Schema loaded from: ' . $schemaFile;
     
     // Execute schema
     $results['steps'][] = 'Creating tables...';
