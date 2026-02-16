@@ -388,8 +388,8 @@ function Admin() {
             {pricing.map((item) => (
               <div key={item.id} className="pricing-item">
                 <div className="pricing-info">
-                  <h3>{item.service_name}</h3>
-                  <p>{item.service_type}</p>
+                  <h3>{item.package_name}</h3>
+                  <p>{item.pet_type} - {item.duration}</p>
                 </div>
                 <div className="pricing-edit">
                   <span className="price-label">₹</span>
