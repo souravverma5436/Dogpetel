@@ -27,20 +27,25 @@ CREATE TABLE IF NOT EXISTS appointments (
     breed VARCHAR(255),
     age VARCHAR(50),
     service VARCHAR(100) NOT NULL,
-    check_in DATE NOT NULL,
-    check_out DATE NOT NULL,
-    special_requirements TEXT,
-    total_amount DECIMAL(10,2) NOT NULL,
-    payment_status VARCHAR(20) DEFAULT 'pending',
-    payment_id VARCHAR(100),
+    price_per_day DECIMAL(10,2) NOT NULL,
+    booking_date DATE NOT NULL,
+    time_slot VARCHAR(20) NOT NULL,
+    pickup_datetime TIMESTAMP NOT NULL,
+    notes TEXT,
+    payment_method VARCHAR(20) DEFAULT 'cash',
+    payment_status VARCHAR(20) DEFAULT 'unpaid',
+    razorpay_payment_id VARCHAR(100),
     status VARCHAR(20) DEFAULT 'pending',
+    actual_pickup_datetime TIMESTAMP,
+    late_days INTEGER DEFAULT 0,
+    late_charges DECIMAL(10,2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_appointments_booking ON appointments(booking_id);
 CREATE INDEX IF NOT EXISTS idx_appointments_email ON appointments(email);
 CREATE INDEX IF NOT EXISTS idx_appointments_status ON appointments(status);
-CREATE INDEX IF NOT EXISTS idx_appointments_dates ON appointments(check_in, check_out);
+CREATE INDEX IF NOT EXISTS idx_appointments_dates ON appointments(booking_date, pickup_datetime);
 
 -- Pricing Table
 CREATE TABLE IF NOT EXISTS pricing (
