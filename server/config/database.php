@@ -1,9 +1,9 @@
 <?php
 // Database Configuration and Connection
-// Updated for Railway external MySQL connection
+// Updated for PostgreSQL on Render
 
 // Load environment variables manually (without composer)
-// Priority: System env vars (Railway) > .env file > defaults
+// Priority: System env vars (Render) > .env file > defaults
 $envFile = __DIR__ . '/../.env';
 
 if (file_exists($envFile)) {
@@ -24,31 +24,32 @@ class Database {
     private $connection;
     
     private function __construct() {
-        // Check if MYSQL_URL is provided (Railway service reference)
-        $mysqlUrl = getenv('MYSQL_URL') ?: ($_ENV['MYSQL_URL'] ?? '');
+        // Check for DATABASE_URL (PostgreSQL on Render)
+        $databaseUrl = getenv('DATABASE_URL') ?: ($_ENV['DATABASE_URL'] ?? '');
         
-        if ($mysqlUrl) {
-            // Parse MYSQL_URL: mysql://user:pass@host:port/dbname
-            $parts = parse_url($mysqlUrl);
+        if ($databaseUrl) {
+            // Parse DATABASE_URL: postgresql://user:pass@host:port/dbname
+            $parts = parse_url($databaseUrl);
             $host = $parts['host'] ?? 'localhost';
-            $port = $parts['port'] ?? '3306';
-            $username = $parts['user'] ?? 'root';
+            $port = $parts['port'] ?? '5432';
+            $username = $parts['user'] ?? 'postgres';
             $password = $parts['pass'] ?? '';
-            $dbname = ltrim($parts['path'] ?? '/railway', '/');
+            $dbname = ltrim($parts['path'] ?? '/petel_db', '/');
+            $driver = 'pgsql';
         } else {
             // Fallback to individual environment variables
             $host = getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? 'localhost');
-            $port = getenv('DB_PORT') ?: ($_ENV['DB_PORT'] ?? '3306');
+            $port = getenv('DB_PORT') ?: ($_ENV['DB_PORT'] ?? '5432');
             $dbname = getenv('DB_NAME') ?: ($_ENV['DB_NAME'] ?? 'petel_db');
-            $username = getenv('DB_USER') ?: ($_ENV['DB_USER'] ?? 'root');
+            $username = getenv('DB_USER') ?: ($_ENV['DB_USER'] ?? 'postgres');
             $password = getenv('DB_PASS') ?: ($_ENV['DB_PASS'] ?? '');
+            $driver = getenv('DB_DRIVER') ?: ($_ENV['DB_DRIVER'] ?? 'pgsql');
         }
         
         try {
-            // Build DSN with port support
-            $dsn = "mysql:host=$host;port=$port;charset=utf8mb4";
+            // Build DSN for PostgreSQL
+            $dsn = "$driver:host=$host;port=$port;dbname=$dbname";
             
-            // First connect without database to ensure it exists
             $this->connection = new PDO(
                 $dsn,
                 $username,
@@ -60,10 +61,6 @@ class Database {
                     PDO::ATTR_TIMEOUT => 10
                 ]
             );
-            
-            // Create database if it doesn't exist
-            $this->connection->exec("CREATE DATABASE IF NOT EXISTS `$dbname`");
-            $this->connection->exec("USE `$dbname`");
             
         } catch (PDOException $e) {
             http_response_code(500);

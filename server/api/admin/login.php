@@ -6,21 +6,8 @@ require_once __DIR__ . '/../../config/cors.php';
 // Start session
 session_start();
 
-// Load environment variables
-$envFile = __DIR__ . '/../../.env';
-$env = [];
-
-if (file_exists($envFile)) {
-    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) continue;
-        list($key, $value) = explode('=', $line, 2);
-        $env[trim($key)] = trim($value);
-    }
-}
-
-// Set default admin password if not in env
-$adminPassword = $env['ADMIN_PASSWORD'] ?? 'komal123';
+// Get admin password from environment
+$adminPassword = getenv('ADMIN_PASSWORD') ?: ($_ENV['ADMIN_PASSWORD'] ?? 'komal123');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
