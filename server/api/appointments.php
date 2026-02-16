@@ -1,8 +1,10 @@
 <?php
 // Appointments API (Works without composer)
+// CORS is handled by .htaccess in this directory
 
-require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
+
+header('Content-Type: application/json');
 
 function generateBookingId() {
     return 'PETEL' . strtoupper(substr(uniqid(), -8));
