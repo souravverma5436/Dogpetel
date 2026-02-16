@@ -1,0 +1,91 @@
+========================================
+UPDATE RAILWAY DATABASE CONNECTION
+========================================
+
+ISSUE FOUND:
+Your MySQL database is in a DIFFERENT Railway project than your web service.
+This means they can't use "mysql.railway.internal" to connect.
+
+You need to use the EXTERNAL connection details instead.
+
+========================================
+STEP 1: UPDATE RAILWAY VARIABLES
+========================================
+
+Go to Railway Dashboard → Web Service → Variables
+
+CHANGE these variables to:
+
+DB_HOST = switchback.proxy.rlwy.net
+DB_PORT = 32612
+DB_NAME = railway
+DB_USER = root
+DB_PASS = bUYKAWxsDimtjepRwVOGsUXSCtKRmGzn
+
+KEEP these variables as they are:
+ADMIN_PASSWORD = komal123
+(and any other variables you have)
+
+========================================
+STEP 2: WAIT FOR REDEPLOY
+========================================
+
+After updating the variables:
+1. Railway will automatically redeploy (2-3 minutes)
+2. The code update I just pushed adds DB_PORT support
+
+========================================
+STEP 3: TEST CONNECTION
+========================================
+
+After Railway finishes deploying, visit:
+https://web-production-463ec.up.railway.app/api/debug-env.php
+
+You should see:
+{
+  "DB_HOST": "switchback.proxy.rlwy.net",
+  "DB_PORT": "32612",  ← NEW!
+  "DB_NAME": "railway",
+  "DB_USER": "root",
+  "DB_PASS": "***SET***"
+}
+
+========================================
+STEP 4: RUN DATABASE SETUP
+========================================
+
+Visit: https://web-production-463ec.up.railway.app/api/setup.php
+
+You should see:
+{
+  "success": true,
+  "message": "Database setup complete",
+  "tables": 5
+}
+
+========================================
+STEP 5: TEST YOUR WEBSITE
+========================================
+
+Visit: https://web-production-463ec.up.railway.app
+- Pricing page should show 33 packages
+- Contact form should work
+- Admin login should work
+
+========================================
+WHY THIS HAPPENED:
+========================================
+
+Railway has TWO types of MySQL connections:
+
+1. INTERNAL (mysql.railway.internal)
+   - Only works when MySQL and web service are in the SAME project
+   - Faster, more secure
+   
+2. EXTERNAL (switchback.proxy.rlwy.net:32612)
+   - Works from anywhere
+   - Required when services are in different projects
+
+Your MySQL is in a different project, so we need to use the external connection.
+
+========================================

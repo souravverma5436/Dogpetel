@@ -1,0 +1,78 @@
+========================================
+PETEL - RAILWAY ENVIRONMENT FIX
+========================================
+
+✅ FIXED: Environment variable priority issue!
+
+PROBLEM: The local .env file was overriding Railway's environment variables.
+
+SOLUTION: Updated code to prioritize Railway environment variables over .env file.
+
+========================================
+WHAT TO DO NOW:
+========================================
+
+STEP 1: WAIT FOR RAILWAY TO REDEPLOY (2-3 minutes)
+   Railway is automatically redeploying with the fix.
+
+STEP 2: CHECK ENVIRONMENT VARIABLES
+   Visit: https://web-production-463ec.up.railway.app/api/debug-env.php
+   
+   You should see:
+   {
+     "variables": {
+       "DB_HOST": "mysql.railway.internal",
+       "DB_NAME": "railway",
+       "DB_USER": "root",
+       "DB_PASS": "***SET***",
+       "ADMIN_PASSWORD": "***SET***"
+     }
+   }
+   
+   If you see "NOT SET" for any variable, they need to be added in Railway!
+
+STEP 3: RUN DATABASE SETUP
+   Visit: https://web-production-463ec.up.railway.app/api/setup.php
+   
+   You should see:
+   {
+     "success": true,
+     "message": "Database setup complete",
+     "tables": 5
+   }
+
+STEP 4: TEST YOUR WEBSITE
+   - Visit: https://web-production-463ec.up.railway.app
+   - Check Pricing page (should show 33 packages)
+   - Try Contact form
+   - Try Admin login (password: komal123)
+
+========================================
+IF ENVIRONMENT VARIABLES SHOW "NOT SET":
+========================================
+
+You need to add them in Railway dashboard:
+
+1. Go to Railway dashboard
+2. Click on "Dogpetel" service (the web service, NOT MySQL)
+3. Click "Variables" tab
+4. Add these variables:
+   - DB_HOST = mysql.railway.internal
+   - DB_NAME = railway
+   - DB_USER = root
+   - DB_PASS = bJAYXAWosDimtjepRwNXOGsaIXSCtKRmzZm
+   - ADMIN_PASSWORD = komal123
+
+5. Click "Deploy" to apply changes
+
+========================================
+AFTER EVERYTHING WORKS:
+========================================
+
+Delete the debug file for security:
+1. Delete: server/api/debug-env.php
+2. Run: git add server/api/debug-env.php
+3. Run: git commit -m "Remove debug endpoint"
+4. Run: git push origin main
+
+========================================

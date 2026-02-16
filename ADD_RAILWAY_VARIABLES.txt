@@ -1,0 +1,96 @@
+========================================
+HOW TO ADD ENVIRONMENT VARIABLES IN RAILWAY
+========================================
+
+The environment variables are NOT SET in Railway yet.
+You need to add them manually in the Railway dashboard.
+
+========================================
+STEP-BY-STEP INSTRUCTIONS:
+========================================
+
+1. GO TO RAILWAY DASHBOARD
+   Open: https://railway.app/
+   Login if needed
+
+2. OPEN YOUR PROJECT
+   Click on your project (should be named something like "Dogpetel" or "web-production-463ec")
+
+3. SELECT THE WEB SERVICE
+   You should see TWO services:
+   - Dogpetel (or web service) ← CLICK THIS ONE
+   - MySQL (database service)
+   
+   IMPORTANT: Click on the WEB SERVICE (Dogpetel), NOT the MySQL service!
+
+4. CLICK ON "VARIABLES" TAB
+   At the top you'll see tabs: Deployments, Variables, Metrics, Settings
+   Click on "Variables"
+
+5. ADD THESE VARIABLES ONE BY ONE
+   Click "New Variable" button for each one:
+
+   Variable Name: DB_HOST
+   Value: mysql.railway.internal
+   
+   Variable Name: DB_NAME
+   Value: railway
+   
+   Variable Name: DB_USER
+   Value: root
+   
+   Variable Name: DB_PASS
+   Value: bJAYXAWosDimtjepRwNXOGsaIXSCtKRmzZm
+   
+   Variable Name: ADMIN_PASSWORD
+   Value: komal123
+
+6. SAVE AND DEPLOY
+   After adding all 5 variables, Railway will automatically redeploy.
+   Wait 2-3 minutes for the deployment to complete.
+
+========================================
+AFTER ADDING VARIABLES:
+========================================
+
+1. VERIFY VARIABLES ARE SET
+   Visit: https://web-production-463ec.up.railway.app/api/debug-env.php
+   
+   You should now see:
+   {
+     "variables": {
+       "DB_HOST": "mysql.railway.internal",
+       "DB_NAME": "railway",
+       "DB_USER": "root",
+       "DB_PASS": "***SET***",
+       "ADMIN_PASSWORD": "***SET***"
+     }
+   }
+
+2. RUN DATABASE SETUP
+   Visit: https://web-production-463ec.up.railway.app/api/setup.php
+   
+   You should see:
+   {
+     "success": true,
+     "message": "Database setup complete",
+     "tables": 5
+   }
+
+3. TEST YOUR WEBSITE
+   Visit: https://web-production-463ec.up.railway.app
+   - Pricing page should show 33 packages
+   - Contact form should work
+   - Admin login should work (password: komal123)
+
+========================================
+IMPORTANT NOTES:
+========================================
+
+- Add variables to the WEB SERVICE (Dogpetel), NOT the MySQL service
+- The DB_HOST must be "mysql.railway.internal" (internal Railway network)
+- The DB_NAME must be "railway" (that's Railway's default database name)
+- Copy the DB_PASS exactly as shown above
+- Railway will auto-redeploy after you add variables
+
+========================================

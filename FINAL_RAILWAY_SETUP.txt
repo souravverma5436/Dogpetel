@@ -1,0 +1,54 @@
+========================================
+FINAL RAILWAY MYSQL SETUP
+========================================
+
+You have a NEW MySQL service in "noble-acceptance" project.
+The web service needs these EXACT values:
+
+========================================
+UPDATE THESE VARIABLES IN WEB SERVICE:
+========================================
+
+Go to: Railway → noble-acceptance → web service → Variables
+
+DELETE these old variables:
+- DB_HOST
+- DB_PORT  
+- DB_PASS
+- DB_USER
+- DB_NAME
+
+ADD this ONE variable instead:
+- Name: MYSQL_URL
+- Value: mysql://root:mMFYuTvskYKSetyptGWVWHViekpzRdFW@MySQL.railway.internal:3306/railway
+
+OR if that doesn't work, add these individual variables:
+
+DB_HOST = MySQL.railway.internal
+DB_PORT = 3306
+DB_USER = root
+DB_PASS = mMFYuTvskYKSetyptGWVWHViekpzRdFW
+DB_NAME = railway
+
+========================================
+IMPORTANT NOTES:
+========================================
+
+1. The MySQL service is called "MySQL" in Railway
+2. The internal hostname should be: MySQL.railway.internal
+3. The password is: mMFYuTvskYKSetyptGWVWHViekpzRdFW
+4. The port is: 3306 (not 32612)
+
+========================================
+AFTER UPDATING VARIABLES:
+========================================
+
+1. Railway will redeploy (wait 2-3 minutes)
+2. Visit: https://web-production-463ec.up.railway.app/api/debug-env.php
+   Should show the new values
+3. Visit: https://web-production-463ec.up.railway.app/api/setup.php
+   Should create all tables
+4. Visit: https://web-production-463ec.up.railway.app
+   Website should work!
+
+========================================

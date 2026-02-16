@@ -14,7 +14,17 @@
     RewriteRule ^health$ health.php [L]
 </IfModule>
 
-# CORS is handled in PHP (cors.php) - do not set headers here to avoid duplicates
+# CORS for non-admin API endpoints (admin has its own .htaccess)
+<IfModule mod_headers.c>
+    # Only apply CORS to non-admin API endpoints
+    <FilesMatch "^(contacts|pricing|testimonials|appointments)\.php$">
+        SetEnvIf Origin "^https?://(.*\.vercel\.app|.*\.onrender\.com|localhost:5173|localhost:3000)$" ORIGIN_ALLOWED=$0
+        Header always set Access-Control-Allow-Origin "%{ORIGIN_ALLOWED}e" env=ORIGIN_ALLOWED
+        Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+        Header always set Access-Control-Allow-Credentials "true"
+    </FilesMatch>
+</IfModule>
 
 # Handle OPTIONS preflight
 RewriteCond %{REQUEST_METHOD} OPTIONS

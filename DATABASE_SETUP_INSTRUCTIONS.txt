@@ -1,0 +1,61 @@
+========================================
+PETEL - DATABASE SETUP INSTRUCTIONS
+========================================
+
+✅ FIXED: Database connection issue resolved!
+
+The problem was that the code was trying to connect to a specific database
+that didn't exist yet. Now it connects to MySQL first, creates the database
+if needed, then uses it.
+
+========================================
+WHAT TO DO NOW:
+========================================
+
+1. WAIT 2-3 MINUTES
+   Railway is automatically redeploying with the fix.
+   You can watch the progress in Railway dashboard.
+
+2. VISIT THE SETUP URL
+   Open this URL in your browser:
+   https://web-production-463ec.up.railway.app/api/setup.php
+   
+   You should see a JSON response like:
+   {
+     "success": true,
+     "message": "Database setup complete",
+     "statements": 40,
+     "tables": 5
+   }
+
+3. TEST YOUR WEBSITE
+   - Visit: https://web-production-463ec.up.railway.app
+   - Check Pricing page (should show 33 packages)
+   - Try Contact form (should save to database)
+   - Try Admin login (password: komal123)
+
+========================================
+IF SETUP URL SHOWS ERROR:
+========================================
+
+If you see an error, it might be because Railway is still deploying.
+Wait another minute and refresh the page.
+
+If error persists, check Railway logs:
+1. Go to Railway dashboard
+2. Click on "Dogpetel" service
+3. Click "Deploy Logs" tab
+4. Look for any errors
+
+========================================
+ENVIRONMENT VARIABLES (Already Set):
+========================================
+
+These are already configured in Railway:
+- DB_HOST = mysql.railway.internal
+- DB_NAME = railway
+- DB_USER = root
+- DB_PASS = bJAYXAWosDimtjepRwNXOGsaIXSCtKRmzZm
+- ADMIN_PASSWORD = komal123
+
+========================================

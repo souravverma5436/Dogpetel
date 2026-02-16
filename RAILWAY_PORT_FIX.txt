@@ -1,156 +1,178 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                              ║
-║           ✅ PETEL - READY FOR RAILWAY DEPLOYMENT! ✅                        ║
+║              ✅ RAILWAY PORT ERROR - FIXED! ✅                               ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-🎉 Everything is configured and ready to deploy to Railway!
+🔧 PROBLEM IDENTIFIED:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Error: "Invalid address: 0.0.0.0:$PORT"
+  
+  Cause: The $PORT environment variable wasn't being expanded properly
+  
+  Railway provides a PORT variable, but the command wasn't using the correct
+  syntax to access it.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📦 RAILWAY CONFIGURATION FILES CREATED:
+✅ SOLUTION APPLIED:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ✅ nixpacks.toml ................. Railway build configuration
-  ✅ Procfile ...................... Start command for Railway
-  ✅ railway.json .................. Railway deployment settings
-  ✅ server/config/cors.php ........ Updated to auto-allow Railway domains
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📚 RAILWAY DEPLOYMENT GUIDES CREATED:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  📖 RAILWAY_QUICK_START.txt ....... Visual quick start guide (READ THIS!)
-  📖 RAILWAY_DEPLOYMENT.md ......... Complete detailed guide
-  📖 DEPLOY_TO_RAILWAY_NOW.md ...... Step-by-step checklist
+  1. Created start.sh - Bash script that properly expands $PORT
+  2. Updated nixpacks.toml - Changed to ${PORT:-8080} syntax
+  3. Updated Dockerfile - Fixed CMD to use shell expansion
+  4. Updated Procfile - Fixed PORT variable syntax
+  5. Updated railway.json - Use start.sh as start command
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🚀 START HERE - 3 SIMPLE STEPS:
+🚀 PUSH THE FIX TO GITHUB:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  STEP 1: Push to GitHub
+  Option A: Use the Batch File (Easiest)
   ─────────────────────────────────────────────────────────────────────────
   
-      Double-click: PUSH_TO_GITHUB.bat
-      
-      Or run:
-      git init
-      git add .
-      git commit -m "Initial commit - PETEL Pet Hotel"
-      git branch -M main
-      git remote add origin https://github.com/souravverma5436/Dogpetel.git
-      git push -u origin main
+      Double-click: PUSH_RAILWAY_FIX.bat
   
   ─────────────────────────────────────────────────────────────────────────
 
-  STEP 2: Deploy on Railway
+  Option B: Manual Commands
   ─────────────────────────────────────────────────────────────────────────
   
-      1. Go to: https://railway.app
-      2. Sign up with GitHub
-      3. Click "New Project" → "Deploy from GitHub repo"
-      4. Select: souravverma5436/Dogpetel
-      5. Click "Deploy Now"
+      git add nixpacks.toml Dockerfile Procfile railway.json start.sh
+      git commit -m "Fix Railway PORT variable issue"
+      git push
   
   ─────────────────────────────────────────────────────────────────────────
 
-  STEP 3: Add MySQL & Configure
+  ✅ Railway will automatically detect the push and redeploy!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⏱️ WHAT HAPPENS NEXT:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. You push the fix to GitHub (1 minute)
+  2. Railway detects the push automatically
+  3. Railway starts a new deployment (2-3 minutes)
+  4. Build completes successfully ✅
+  5. start.sh script runs ✅
+  6. PORT variable expands correctly ✅
+  7. PHP server starts on correct port ✅
+  8. Your website is live! 🎉
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 MONITOR THE DEPLOYMENT:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Go to Railway dashboard: https://railway.app
+  2. Click on your PETEL project
+  3. Click on your service
+  4. Go to "Deploy Logs" tab
+  5. Watch for these messages:
+
+  Expected logs:
+  ✅ "Starting PHP server on port 8080..." (or whatever PORT Railway assigns)
+  ✅ "Development Server (http://0.0.0.0:8080) started"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 WHAT WAS CHANGED:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Before:
+  ❌ php -S 0.0.0.0:$PORT -t server
+     (Shell doesn't expand $PORT in this context)
+
+  After:
+  ✅ bash start.sh
+     (start.sh properly expands ${PORT:-8080})
+  
+  The start.sh script:
+  #!/bin/bash
+  PORT=${PORT:-8080}
+  php -S 0.0.0.0:$PORT -t server
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ AFTER SUCCESSFUL DEPLOYMENT:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Your website should be accessible at:
+  🌐 https://web-production-463ec.up.railway.app
+
+  Test it:
+  1. Visit the URL
+  2. Check if homepage loads
+  3. Try different pages
+  
+  If it works, continue with:
+  1. ✅ Add MySQL database in Railway
+  2. ✅ Set environment variables (DB credentials)
+  3. ✅ Import database/schema.sql
+  4. ✅ Test all features
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🆘 IF STILL HAVING ISSUES:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Option 1: Manually set start command in Railway
   ─────────────────────────────────────────────────────────────────────────
   
-      1. In Railway, click "New" → "Database" → "Add MySQL"
-      2. Set environment variables (copy from MySQL service)
-      3. Import database/schema.sql
-      4. Done!
-  
+  1. Go to Railway → Your service → Settings
+  2. Scroll to "Deploy"
+  3. Find "Custom Start Command"
+  4. Enter: bash start.sh
+  5. Save and redeploy
+
   ─────────────────────────────────────────────────────────────────────────
 
-  📖 Full instructions: RAILWAY_QUICK_START.txt
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-⏱️ DEPLOYMENT TIME:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  Push to GitHub ................ 5 minutes
-  Create Railway account ........ 2 minutes
-  Deploy from GitHub ............ 3 minutes
-  Add MySQL database ............ 2 minutes
-  Set environment variables ..... 3 minutes
-  Import database schema ........ 5 minutes
-  Configure & test .............. 5 minutes
-  ─────────────────────────────────────────
-  TOTAL TIME .................... 25 minutes
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-💰 RAILWAY PRICING:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  Free Tier: $5 credit/month (~500 hours)
-  Your project: ~$3-5/month
+  Option 2: Use Dockerfile builder
+  ─────────────────────────────────────────────────────────────────────────
   
-  ✅ Your PETEL website fits in the FREE tier!
+  1. Go to Railway → Your service → Settings
+  2. Scroll to "Build Configuration"
+  3. Change "Builder" to "Dockerfile"
+  4. Save and redeploy
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✨ WHAT YOU'LL GET:
+📚 FILES UPDATED:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ✅ Live website with custom Railway URL
-  ✅ Automatic HTTPS/SSL certificate
-  ✅ MySQL database hosted on Railway
-  ✅ Auto-deploy on GitHub push
-  ✅ Real-time logs and metrics
-  ✅ 99.9% uptime
-  ✅ Global CDN
-  ✅ Professional hosting
+  ✅ start.sh (new) - Bash script with proper PORT expansion
+  ✅ nixpacks.toml (updated) - Fixed PORT syntax
+  ✅ Dockerfile (updated) - Fixed CMD with shell expansion
+  ✅ Procfile (updated) - Fixed PORT syntax
+  ✅ railway.json (updated) - Use start.sh command
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🎯 AFTER DEPLOYMENT:
+📞 SUPPORT:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  Your live URLs:
-  
-  🌐 Website: https://your-railway-domain.up.railway.app
-  🔐 Admin: https://your-railway-domain.up.railway.app/admin
-  🔌 API: https://your-railway-domain.up.railway.app/api
-  
-  Admin password: komal123
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📖 DOCUMENTATION:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  Quick Start ............. RAILWAY_QUICK_START.txt (START HERE!)
-  Detailed Guide .......... RAILWAY_DEPLOYMENT.md
-  Step-by-Step Checklist .. DEPLOY_TO_RAILWAY_NOW.md
-  Troubleshooting ......... TROUBLESHOOTING.md
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🆘 NEED HELP?
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  Railway Docs: https://docs.railway.app
   Railway Discord: https://discord.gg/railway
+  Railway Docs: https://docs.railway.app
   Contact: +91 82838 83463 (Komal)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✅ READY TO DEPLOY!
+🎯 ACTION REQUIRED:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  1. Read: RAILWAY_QUICK_START.txt
-  2. Run: PUSH_TO_GITHUB.bat
-  3. Go to: https://railway.app
-  4. Deploy!
+  1. Run: PUSH_RAILWAY_FIX.bat
+  2. Wait 2-3 minutes for Railway to redeploy
+  3. Check "Deploy Logs" for "Starting PHP server..."
+  4. Visit your Railway URL
+  5. Continue with database setup if working!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Your PETEL Pet Hotel website will be live in 25 minutes! 🐕🏨🎉
+This fix should resolve the PORT variable issue! 🚀
+
+Your PETEL website will be live soon! 🐕🏨🎉
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
