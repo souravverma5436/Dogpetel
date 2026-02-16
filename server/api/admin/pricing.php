@@ -4,12 +4,40 @@
 
 require_once __DIR__ . '/../../config/database.php';
 
-session_start();
-
-// Set content type
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
+// Simple JWT verification
+function base64url_encode($data) {
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+}
+
+function verifyJWT($jwt, $password) {
+    $parts = explode('.', $jwt);
+    if (count($parts) !== 3) return false;
+    
+    list($header, $payload, $signature) = $parts;
+    $validSignature = base64url_encode(hash_hmac('sha256', $header . "." . $payload, $password, true));
+    
+    if ($signature !== $validSignature) return false;
+    
+    $payloadData = json_decode(base64_decode(strtr($payload, '-_', '+/')), true);
+    if ($payloadData['exp'] < time()) return false;
+    
+    return true;
+}
+
+// Check authentication
+$headers = getallheaders();
+$authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+$adminPassword = getenv('ADMIN_PASSWORD') ?: ($_ENV['ADMIN_PASSWORD'] ?? 'komal123');
+
+$authenticated = false;
+if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+    $token = $matches[1];
+    $authenticated = verifyJWT($token, $adminPassword);
+}
+
+if (!$authenticated) {
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
     exit;
