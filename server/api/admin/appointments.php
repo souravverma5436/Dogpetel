@@ -1,10 +1,13 @@
 <?php
 // Admin Appointments Management API
+// CORS is handled by .htaccess in this directory
 
-require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/database.php';
 
 session_start();
+
+// Set content type
+header('Content-Type: application/json');
 
 // Check admin authentication
 if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
