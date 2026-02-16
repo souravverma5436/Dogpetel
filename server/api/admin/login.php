@@ -1,11 +1,13 @@
 <?php
 // Admin Login API
 
-// Handle CORS first, before any output
+// Handle CORS and OPTIONS first
 require_once __DIR__ . '/../../config/cors.php';
 
-// Start session after CORS headers
-session_start();
+// Only start session if not OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] !== 'OPTIONS') {
+    session_start();
+}
 
 // Get admin password from environment
 $adminPassword = getenv('ADMIN_PASSWORD') ?: ($_ENV['ADMIN_PASSWORD'] ?? 'komal123');
