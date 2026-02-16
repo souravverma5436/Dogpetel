@@ -30,6 +30,9 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts || true
 # Copy server files
 COPY server/ ./
 
+# Copy database schema files
+COPY database/ /var/www/html/database/
+
 # Create health endpoint
 RUN echo '<?php header("Content-Type: application/json"); echo json_encode(["status" => "healthy", "timestamp" => time()]);' > /var/www/html/health.php
 
