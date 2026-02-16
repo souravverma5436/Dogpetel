@@ -27,10 +27,11 @@ function Pricing() {
 
   const groupByType = (items) => {
     return items.reduce((acc, item) => {
-      if (!acc[item.service_type]) {
-        acc[item.service_type] = []
+      const type = item.pet_type || 'other'
+      if (!acc[type]) {
+        acc[type] = []
       }
-      acc[item.service_type].push(item)
+      acc[type].push(item)
       return acc
     }, {})
   }
@@ -38,23 +39,17 @@ function Pricing() {
   const groupedPricing = groupByType(pricing)
 
   const typeLabels = {
-    boarding: 'Boarding Packages',
-    daycare: 'Daycare Services',
-    grooming: 'Grooming Services',
-    pickup: 'Transportation Services',
-    training: 'Training Services',
-    veterinary: 'Veterinary Services',
-    combo: 'Combo Packages'
+    dog: 'Dog Care Packages',
+    cat: 'Cat Care Packages',
+    bird: 'Bird Care Packages',
+    other: 'Other Services'
   }
 
   const typeIcons = {
-    boarding: '🏠',
-    daycare: '☀️',
-    grooming: '✨',
-    pickup: '🚗',
-    training: '🎓',
-    veterinary: '🏥',
-    combo: '🎁'
+    dog: '🐕',
+    cat: '🐈',
+    bird: '🦜',
+    other: '🐾'
   }
 
   if (loading) {
@@ -84,27 +79,24 @@ function Pricing() {
               </h2>
               <div className="pricing-grid">
                 {groupedPricing[type].map((item) => {
-                  const isPackage = item.service_name.includes('Weekly') || 
-                                   item.service_name.includes('Monthly') || 
-                                   item.service_name.includes('Package') ||
-                                   item.service_name.includes('Combo');
-                  const hasSavings = item.description && item.description.includes('Save');
+                  const isPopular = item.is_popular;
+                  const features = item.features ? item.features.split(',').map(f => f.trim()) : [];
                   
                   return (
-                    <div key={item.id} className={`pricing-card ${isPackage ? 'package-card' : ''}`}>
-                      {isPackage && <div className="package-badge">Package Deal</div>}
-                      <h3>{item.service_name}</h3>
+                    <div key={item.id} className={`pricing-card ${isPopular ? 'popular-card' : ''}`}>
+                      {isPopular && <div className="package-badge">Popular</div>}
+                      <h3>{item.package_name}</h3>
                       <div className="price">
                         <span className="currency">₹</span>
                         <span className="amount">{item.price}</span>
-                        {(type === 'boarding' || type === 'daycare') && !item.service_name.includes('Package') && !item.service_name.includes('Weekly') && !item.service_name.includes('Monthly') && (
-                          <span className="period">/day</span>
-                        )}
+                        <span className="period">/{item.duration}</span>
                       </div>
-                      {item.description && (
-                        <p className={`description ${hasSavings ? 'has-savings' : ''}`}>
-                          {item.description}
-                        </p>
+                      {features.length > 0 && (
+                        <ul className="features-list">
+                          {features.map((feature, idx) => (
+                            <li key={idx}>{feature}</li>
+                          ))}
+                        </ul>
                       )}
                       <Link to="/contact" className="btn btn-primary">Book Now</Link>
                     </div>
