@@ -121,7 +121,7 @@ function Contact() {
 
   const handleServiceChange = (e) => {
     const selectedService = e.target.value
-    const priceItem = pricing.find(p => p.service_name === selectedService)
+    const priceItem = pricing.find(p => p.package_name === selectedService)
     setAppointmentForm({
       ...appointmentForm,
       service: selectedService,
@@ -324,8 +324,8 @@ function Contact() {
                     >
                       <option value="">Select Service</option>
                       {pricing.map((item) => (
-                        <option key={item.id} value={item.service_name}>
-                          {item.service_name} - ₹{item.price}
+                        <option key={item.id} value={item.package_name}>
+                          {item.package_name} ({item.pet_type} - {item.duration}) - ₹{item.price}
                         </option>
                       ))}
                     </select>
