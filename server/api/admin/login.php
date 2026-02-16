@@ -1,8 +1,6 @@
 <?php
 // Admin Login API
-
-// Handle CORS and OPTIONS first
-require_once __DIR__ . '/../../config/cors.php';
+// CORS is handled by .htaccess in this directory
 
 // Only start session if not OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] !== 'OPTIONS') {
@@ -11,6 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'OPTIONS') {
 
 // Get admin password from environment
 $adminPassword = getenv('ADMIN_PASSWORD') ?: ($_ENV['ADMIN_PASSWORD'] ?? 'komal123');
+
+// Set content type
+header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
