@@ -41,7 +41,9 @@ function Footer() {
 
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} PETEL - A Pet Hotel. All rights reserved to Sv_desizns.</p>
-          <p>Founded by Komal | Designed by Sourav Verma</p>
+          <p>
+            Founded by Komal | <a href="https://svermaportfolio.netlify.app/" target="_blank" rel="noopener noreferrer" className="designer-link">Designed by Sourav Verma</a>
+          </p>
         </div>
       </div>
     </footer>
