@@ -40,8 +40,8 @@ function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} PETEL - A Pet Hotel. All rights reserved.</p>
-          <p>Founded by Komal</p>
+          <p>&copy; {new Date().getFullYear()} PETEL - A Pet Hotel. All rights reserved to Sv_desizns.</p>
+          <p>Founded by Komal | Designed by Sourav Verma</p>
         </div>
       </div>
     </footer>
