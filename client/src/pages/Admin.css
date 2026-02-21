@@ -4,6 +4,7 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  padding-top: 100px;
 }
 
 .login-box {
@@ -22,7 +23,7 @@
 }
 
 .admin-dashboard {
-  padding: 30px;
+  padding: 140px 30px 30px;
   max-width: 1400px;
   margin: 0 auto;
   min-height: 100vh;
@@ -389,7 +390,7 @@
 
 @media (max-width: 768px) {
   .admin-dashboard {
-    padding: 15px;
+    padding: 100px 15px 15px;
   }
 
   .admin-header {
