@@ -1,16 +1,26 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { CONTACT_INFO } from '../config'
 import './Header.css'
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const location = useLocation()
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const isActive = (path) => location.pathname === path
 
   return (
-    <header className="header">
+    <header className={`header ${scrolled ? 'scrolled' : ''}`}>
       <div className="container">
         <div className="header-content">
           <Link to="/" className="logo">
@@ -28,12 +38,12 @@ function Header() {
             <Link to="/gallery" className={isActive('/gallery') ? 'active' : ''} onClick={() => setMenuOpen(false)}>Gallery</Link>
             <Link to="/about" className={isActive('/about') ? 'active' : ''} onClick={() => setMenuOpen(false)}>About</Link>
             <Link to="/contact" className={isActive('/contact') ? 'active' : ''} onClick={() => setMenuOpen(false)}>Contact</Link>
-            <Link to="/admin" className={`admin-link ${isActive('/admin') ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>🔐 Admin</Link>
+            <Link to="/admin" className={`admin-link ${isActive('/admin') ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>Admin</Link>
           </nav>
 
           <div className="header-actions">
             <a href={`tel:${CONTACT_INFO.phone}`} className="btn btn-primary">
-              📞 Call Now
+              Call Now
             </a>
             <div className="availability-badge">24/7</div>
           </div>
