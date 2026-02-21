@@ -25,6 +25,8 @@
   padding: 30px;
   max-width: 1400px;
   margin: 0 auto;
+  min-height: 100vh;
+  background: var(--primary);
 }
 
 .admin-header {
@@ -33,19 +35,20 @@
   align-items: center;
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 2px solid #eee;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .admin-header h1 {
-  color: var(--primary);
+  color: var(--white);
   font-size: 32px;
+  font-weight: 600;
 }
 
 .admin-tabs {
   display: flex;
   gap: 10px;
   margin-bottom: 30px;
-  border-bottom: 2px solid #eee;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .admin-tabs .tab {
@@ -54,7 +57,7 @@
   border: none;
   font-size: 16px;
   font-weight: 500;
-  color: var(--text-light);
+  color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
   transition: all 0.3s;
   border-bottom: 3px solid transparent;
@@ -62,8 +65,8 @@
 }
 
 .admin-tabs .tab.active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
+  color: var(--white);
+  border-bottom-color: var(--white);
 }
 
 .filters {
@@ -77,17 +80,30 @@
   flex: 1;
   min-width: 300px;
   padding: 12px 20px;
-  border: 2px solid #ddd;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   font-size: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--white);
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .filter-select {
   padding: 12px 20px;
-  border: 2px solid #ddd;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--white);
+}
+
+.filter-select option {
+  background: var(--primary);
+  color: var(--white);
 }
 
 .appointments-list {
@@ -96,11 +112,13 @@
 }
 
 .appointment-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 25px;
   border-radius: 15px;
   box-shadow: var(--shadow);
-  border-left: 5px solid var(--primary);
+  border-left: 5px solid var(--white);
 }
 
 .apt-header {
@@ -109,12 +127,13 @@
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 15px;
-  border-bottom: 2px solid #eee;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .apt-header h3 {
-  color: var(--primary);
+  color: var(--white);
   font-size: 20px;
+  font-weight: 600;
 }
 
 .status-badge {
@@ -155,18 +174,21 @@
   display: flex;
   gap: 10px;
   font-size: 15px;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .detail-row strong {
   min-width: 150px;
-  color: var(--text-dark);
+  color: var(--white);
+  font-weight: 600;
 }
 
 .late-info {
-  background: #fff3cd;
+  background: rgba(255, 193, 7, 0.15);
   padding: 10px;
   border-radius: 5px;
-  color: #856404;
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
 }
 
 .apt-actions {
@@ -177,10 +199,17 @@
 
 .action-select {
   padding: 10px 15px;
-  border: 2px solid #ddd;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--white);
+}
+
+.action-select option {
+  background: var(--primary);
+  color: var(--white);
 }
 
 .btn-danger {
@@ -198,7 +227,7 @@
 .no-data {
   text-align: center;
   padding: 50px;
-  color: var(--text-light);
+  color: rgba(255, 255, 255, 0.6);
   font-size: 18px;
 }
 
@@ -213,15 +242,15 @@
 }
 
 .contacts-section {
-  background: white;
+  background: transparent;
   padding: 30px;
   border-radius: 15px;
-  box-shadow: var(--shadow);
 }
 
 .contacts-section h2 {
-  color: var(--primary);
+  color: var(--white);
   margin-bottom: 30px;
+  font-weight: 600;
 }
 
 .contacts-list {
@@ -230,11 +259,13 @@
 }
 
 .contact-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 25px;
   border-radius: 15px;
   box-shadow: var(--shadow);
-  border-left: 5px solid var(--secondary);
+  border-left: 5px solid var(--white);
 }
 
 .contact-header {
@@ -243,16 +274,17 @@
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 15px;
-  border-bottom: 2px solid #eee;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .contact-header h3 {
-  color: var(--primary);
+  color: var(--white);
   font-size: 20px;
+  font-weight: 600;
 }
 
 .contact-date {
-  color: var(--text-light);
+  color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
 }
 
@@ -270,10 +302,12 @@
 .message-row p {
   margin-top: 10px;
   padding: 15px;
-  background: var(--bg-light);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   line-height: 1.6;
   width: 100%;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .contact-actions {
@@ -283,15 +317,15 @@
 }
 
 .pricing-section {
-  background: white;
+  background: transparent;
   padding: 30px;
   border-radius: 15px;
-  box-shadow: var(--shadow);
 }
 
 .pricing-section h2 {
-  color: var(--primary);
+  color: var(--white);
   margin-bottom: 30px;
+  font-weight: 600;
 }
 
 .pricing-list {
@@ -304,24 +338,28 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background: var(--bg-light);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   transition: all 0.3s;
 }
 
 .pricing-item:hover {
-  background: #e0e0e0;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .pricing-info h3 {
   font-size: 18px;
-  color: var(--text-dark);
+  color: var(--white);
   margin-bottom: 5px;
+  font-weight: 600;
 }
 
 .pricing-info p {
   font-size: 14px;
-  color: var(--text-light);
+  color: rgba(255, 255, 255, 0.7);
   text-transform: capitalize;
 }
 
@@ -334,17 +372,19 @@
 .price-label {
   font-size: 20px;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--white);
 }
 
 .price-input {
   width: 120px;
   padding: 10px;
-  border: 2px solid #ddd;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   font-size: 18px;
   font-weight: 600;
   text-align: right;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--white);
 }
 
 @media (max-width: 768px) {
@@ -392,8 +432,16 @@
   padding: 2rem 0;
 }
 
+.gallery-section h2 {
+  color: var(--white);
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
 .add-image-form {
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -402,7 +450,8 @@
 
 .add-image-form h3 {
   margin-bottom: 1.5rem;
-  color: #333;
+  color: var(--white);
+  font-weight: 600;
 }
 
 .add-image-form .form-group {
@@ -413,27 +462,34 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
-  color: #555;
+  color: var(--white);
 }
 
 .add-image-form input,
 .add-image-form textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   font-size: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--white);
+}
+
+.add-image-form input::placeholder,
+.add-image-form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .add-image-form small {
   display: block;
   margin-top: 0.5rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.875rem;
 }
 
 .add-image-form small a {
-  color: #ff6b35;
+  color: #4fc3f7;
   text-decoration: none;
 }
 
@@ -443,7 +499,8 @@
 
 .gallery-list h3 {
   margin-bottom: 1.5rem;
-  color: #333;
+  color: var(--white);
+  font-weight: 600;
 }
 
 .gallery-grid-admin {
@@ -453,7 +510,9 @@
 }
 
 .gallery-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -481,11 +540,12 @@
 
 .gallery-card-info h4 {
   margin-bottom: 0.5rem;
-  color: #333;
+  color: var(--white);
+  font-weight: 600;
 }
 
 .gallery-card-info p {
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.875rem;
   margin-bottom: 1rem;
 }
