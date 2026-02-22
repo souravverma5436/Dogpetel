@@ -15,11 +15,17 @@ function Gallery() {
   const fetchGallery = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/gallery.php`)
+      console.log('Gallery API Response:', response.data)
       if (response.data.success) {
-        setImages(response.data.data)
+        setImages(response.data.data || [])
+      } else {
+        console.error('Gallery API returned success: false')
+        setImages([])
       }
     } catch (error) {
       console.error('Error fetching gallery:', error)
+      console.error('Error details:', error.response?.data)
+      setImages([])
     } finally {
       setLoading(false)
     }
@@ -52,9 +58,27 @@ function Gallery() {
           ) : images.length === 0 ? (
             <div className="no-images">
               <p>No images yet. Check back soon!</p>
-              <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-                Visit our Instagram
-              </a>
+              <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                  Visit our Instagram
+                </a>
+                <button 
+                  onClick={async () => {
+                    setLoading(true)
+                    try {
+                      await axios.get(`${API_BASE_URL}/setup-gallery.php`)
+                      alert('Gallery setup complete! Refreshing...')
+                      window.location.reload()
+                    } catch (error) {
+                      alert('Setup failed. Please contact admin.')
+                      setLoading(false)
+                    }
+                  }}
+                  className="btn btn-secondary"
+                >
+                  Setup Gallery Images
+                </button>
+              </div>
             </div>
           ) : (
             <div className="gallery-grid">

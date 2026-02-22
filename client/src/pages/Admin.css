@@ -219,10 +219,48 @@
   padding: 10px 20px;
   border-radius: 8px;
   font-size: 14px;
+  border: 2px solid #dc3545;
+  font-weight: 600;
 }
 
 .btn-danger:hover {
   background: #c82333;
+  border-color: #c82333;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: var(--white);
+  color: var(--primary);
+  border: 2px solid var(--white);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover {
+  background: transparent;
+  color: var(--white);
+  transform: translateY(-2px);
 }
 
 .no-data {
