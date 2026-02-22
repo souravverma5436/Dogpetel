@@ -1,5 +1,35 @@
 .gallery-page {
   min-height: 100vh;
+  background: var(--primary);
+}
+
+.page-hero {
+  background: linear-gradient(
+    135deg,
+    rgba(11, 31, 59, 0.9) 0%,
+    rgba(7, 22, 40, 0.85) 100%
+  ),
+  url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=1920&q=80') center/cover;
+  color: white;
+  padding: 120px 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 56px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.page-hero p {
+  font-size: 20px;
+  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 20px;
 }
 
 .instagram-link {
@@ -22,7 +52,7 @@
   text-align: center;
   padding: 3rem;
   font-size: 1.2rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .no-images {
@@ -32,7 +62,7 @@
 
 .no-images p {
   font-size: 1.2rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 1.5rem;
 }
 
@@ -49,13 +79,16 @@
   border-radius: 12px;
   cursor: pointer;
   aspect-ratio: 1;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s, box-shadow 0.3s;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .gallery-item:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .gallery-item img {
@@ -111,7 +144,9 @@
   position: relative;
   max-width: 90vw;
   max-height: 90vh;
-  background: white;
+  background: rgba(11, 31, 59, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   padding: 2rem;
   animation: slideUp 0.3s;
@@ -137,12 +172,15 @@
 
 .lightbox-content h3 {
   margin-top: 1rem;
-  color: #333;
+  color: var(--white);
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
 }
 
 .lightbox-content p {
   margin-top: 0.5rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
 }
 
 .close-btn {
