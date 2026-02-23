@@ -58,7 +58,7 @@ function Gallery() {
           ) : images.length === 0 ? (
             <div className="no-images">
               <p>No images yet. Check back soon!</p>
-              <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
                 <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
                   Visit our Instagram
                 </a>
@@ -66,11 +66,21 @@ function Gallery() {
                   onClick={async () => {
                     setLoading(true)
                     try {
-                      await axios.get(`${API_BASE_URL}/setup-gallery.php`)
-                      alert('Gallery setup complete! Refreshing...')
-                      window.location.reload()
+                      const response = await axios.get(`${API_BASE_URL}/setup-gallery.php`)
+                      console.log('Setup response:', response.data)
+                      if (response.data.success) {
+                        alert('Gallery setup complete! Refreshing...')
+                        fetchGallery()
+                      } else {
+                        alert('Setup completed but check console for details')
+                        console.error('Setup response:', response.data)
+                        fetchGallery()
+                      }
                     } catch (error) {
-                      alert('Setup failed. Please contact admin.')
+                      console.error('Setup error:', error)
+                      console.error('Error response:', error.response?.data)
+                      alert('Setup may have failed. Check browser console (F12) for details.')
+                    } finally {
                       setLoading(false)
                     }
                   }}
@@ -78,7 +88,25 @@ function Gallery() {
                 >
                   Setup Gallery Images
                 </button>
+                <a 
+                  href={`${API_BASE_URL}/setup-gallery.php`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-outline"
+                  onClick={(e) => {
+                    setTimeout(() => {
+                      if (window.confirm('Setup script opened in new tab. Click OK to refresh this page.')) {
+                        window.location.reload()
+                      }
+                    }, 2000)
+                  }}
+                >
+                  Run Setup Script
+                </a>
               </div>
+              <p style={{ marginTop: '20px', fontSize: '14px', color: 'rgba(255,255,255,0.6)' }}>
+                Or visit: {API_BASE_URL}/setup-gallery.php
+              </p>
             </div>
           ) : (
             <div className="gallery-grid">
