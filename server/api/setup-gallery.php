@@ -11,7 +11,25 @@ require_once __DIR__ . '/../config/database.php';
 try {
     $db = getDB();
     
-    // Delete any existing images first
+    // First, create the gallery table if it doesn't exist
+    $createTableSQL = "
+    CREATE TABLE IF NOT EXISTS gallery (
+        id SERIAL PRIMARY KEY,
+        image_url TEXT NOT NULL,
+        title VARCHAR(255),
+        description TEXT,
+        display_order INTEGER DEFAULT 0,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )";
+    
+    $db->exec($createTableSQL);
+    
+    // Create indexes
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_gallery_active ON gallery(is_active)");
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_gallery_order ON gallery(display_order)");
+    
+    // Delete any existing images
     $db->exec("DELETE FROM gallery");
     
     // Add 6 beautiful images
@@ -71,7 +89,7 @@ try {
     
     echo json_encode([
         'success' => true,
-        'message' => "Successfully added {$count} images to gallery!",
+        'message' => "Gallery table created and {$count} images added successfully!",
         'images_added' => $count,
         'total_active' => $totalActive,
         'note' => 'Gallery is now ready. Visit /gallery to see the images.'
