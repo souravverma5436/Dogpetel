@@ -72,7 +72,7 @@ function Home() {
               </div>
             </div>
             <div className="hero-image">
-              <img src="/logo.png" alt="PETEL - A Pet Hotel" className="hero-logo" />
+              <img src="/dogpetel-logo.png" alt="PETEL - A Pet Hotel" className="hero-logo" />
             </div>
           </div>
         </div>
