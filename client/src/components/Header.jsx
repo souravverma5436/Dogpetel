@@ -24,7 +24,7 @@ function Header() {
       <div className="container">
         <div className="header-content">
           <Link to="/" className="logo">
-            <img src="/logo.png" alt="PETEL Logo" className="logo-img" />
+            <img src="/dogpetel logo.png" alt="PETEL Logo" className="logo-img" />
             <div className="logo-text">
               <h1>PETEL</h1>
               <p>A Pet Hotel</p>
