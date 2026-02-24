@@ -28,7 +28,7 @@ function SplashScreen({ onComplete }) {
   return (
     <div className={`splash-screen ${fadeOut ? 'fade-out' : ''}`}>
       <div className="splash-content">
-        <img src="/dogpetel logo.png" alt="PETEL Logo" className="splash-logo" />
+        <img src="/dogpetel-logo.png" alt="PETEL Logo" className="splash-logo" />
         <h1 className="splash-title">PETEL</h1>
         <p className="splash-subtitle">Your Dog's Home Away From Home</p>
         <div className="splash-loader">
