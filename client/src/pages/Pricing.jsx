@@ -4,9 +4,32 @@ import axios from 'axios'
 import { API_BASE_URL } from '../config'
 import './Pricing.css'
 
+// Static fallback pricing data
+const STATIC_PRICING = [
+  { id:1, package_name:'Basic Care', pet_type:'dog', duration:'Per Day', price:500, features:'Daily walks,Basic grooming,Regular feeding,Clean accommodation', is_popular:false },
+  { id:2, package_name:'Standard Care', pet_type:'dog', duration:'Per Day', price:800, features:'Multiple walks,Basic grooming,Premium food,Spacious room,Play time', is_popular:true },
+  { id:3, package_name:'Premium Care', pet_type:'dog', duration:'Per Day', price:1200, features:'Unlimited walks,Full grooming,Gourmet meals,Luxury suite,Personal attention', is_popular:false },
+  { id:4, package_name:'Weekly Basic', pet_type:'dog', duration:'Per Week', price:3000, features:'All Basic Care features,7 days accommodation,Weekly health check', is_popular:false },
+  { id:5, package_name:'Weekly Standard', pet_type:'dog', duration:'Per Week', price:5000, features:'All Standard Care features,7 days accommodation,Vet consultation,Photo updates', is_popular:true },
+  { id:6, package_name:'Weekly Premium', pet_type:'dog', duration:'Per Week', price:7500, features:'All Premium Care features,7 days accommodation,Daily vet check,Spa treatment', is_popular:false },
+  { id:7, package_name:'Monthly Basic', pet_type:'dog', duration:'Per Month', price:12000, features:'All Basic Care features,30 days accommodation,Bi-weekly health check', is_popular:false },
+  { id:8, package_name:'Monthly Standard', pet_type:'dog', duration:'Per Month', price:18000, features:'All Standard Care features,30 days accommodation,Weekly vet visits,Training program', is_popular:true },
+  { id:9, package_name:'Monthly Premium', pet_type:'dog', duration:'Per Month', price:28000, features:'All Premium Care features,30 days accommodation,Daily health monitoring,Spa package', is_popular:false },
+  { id:10, package_name:'Daycare', pet_type:'dog', duration:'Per Day', price:400, features:'Drop-off and pick-up,Supervised play,Feeding,Basic care', is_popular:false },
+  { id:11, package_name:'Basic Care', pet_type:'cat', duration:'Per Day', price:400, features:'Daily care,Litter maintenance,Regular feeding,Clean space', is_popular:false },
+  { id:12, package_name:'Standard Care', pet_type:'cat', duration:'Per Day', price:650, features:'Enhanced care,Premium litter,Quality food,Comfortable room,Play time', is_popular:true },
+  { id:13, package_name:'Premium Care', pet_type:'cat', duration:'Per Day', price:950, features:'Luxury care,Premium litter,Gourmet meals,Private suite,Personal attention', is_popular:false },
+  { id:14, package_name:'Weekly Basic', pet_type:'cat', duration:'Per Week', price:2500, features:'All Basic Care features,7 days accommodation,Weekly health check', is_popular:false },
+  { id:15, package_name:'Weekly Standard', pet_type:'cat', duration:'Per Week', price:4000, features:'All Standard Care features,7 days accommodation,Vet consultation', is_popular:true },
+  { id:16, package_name:'Weekly Premium', pet_type:'cat', duration:'Per Week', price:6000, features:'All Premium Care features,7 days accommodation,Daily vet check', is_popular:false },
+  { id:17, package_name:'Basic Care', pet_type:'bird', duration:'Per Day', price:300, features:'Daily care,Cage cleaning,Regular feeding,Fresh water', is_popular:false },
+  { id:18, package_name:'Standard Care', pet_type:'bird', duration:'Per Day', price:500, features:'Enhanced care,Premium food,Spacious cage,Social time', is_popular:true },
+  { id:19, package_name:'Premium Care', pet_type:'bird', duration:'Per Day', price:750, features:'Luxury care,Gourmet diet,Large aviary,Personal attention', is_popular:false },
+]
+
 function Pricing() {
-  const [pricing, setPricing] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [pricing, setPricing] = useState(STATIC_PRICING)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     fetchPricing()
@@ -15,11 +38,13 @@ function Pricing() {
   const fetchPricing = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/pricing.php`)
-      if (response.data.success) {
+      if (response.data.success && response.data.data.length > 0) {
         setPricing(response.data.data)
       }
+      // else keep static data
     } catch (error) {
-      console.error('Error fetching pricing:', error)
+      console.error('Error fetching pricing, using static data:', error)
+      // Keep static fallback data - already set as default
     } finally {
       setLoading(false)
     }
@@ -55,7 +80,9 @@ function Pricing() {
   if (loading) {
     return (
       <div className="pricing-page">
-        <div className="spinner"></div>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <div className="spinner"></div>
+        </div>
       </div>
     )
   }

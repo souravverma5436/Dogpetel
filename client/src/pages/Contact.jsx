@@ -3,9 +3,29 @@ import axios from 'axios'
 import { API_BASE_URL, CONTACT_INFO } from '../config'
 import './Contact.css'
 
+// Static fallback pricing
+const STATIC_PRICING = [
+  { id:1, package_name:'Basic Care', pet_type:'dog', duration:'Per Day', price:500 },
+  { id:2, package_name:'Standard Care', pet_type:'dog', duration:'Per Day', price:800 },
+  { id:3, package_name:'Premium Care', pet_type:'dog', duration:'Per Day', price:1200 },
+  { id:4, package_name:'Weekly Basic', pet_type:'dog', duration:'Per Week', price:3000 },
+  { id:5, package_name:'Weekly Standard', pet_type:'dog', duration:'Per Week', price:5000 },
+  { id:6, package_name:'Weekly Premium', pet_type:'dog', duration:'Per Week', price:7500 },
+  { id:7, package_name:'Monthly Basic', pet_type:'dog', duration:'Per Month', price:12000 },
+  { id:8, package_name:'Monthly Standard', pet_type:'dog', duration:'Per Month', price:18000 },
+  { id:9, package_name:'Monthly Premium', pet_type:'dog', duration:'Per Month', price:28000 },
+  { id:10, package_name:'Daycare', pet_type:'dog', duration:'Per Day', price:400 },
+  { id:11, package_name:'Basic Care', pet_type:'cat', duration:'Per Day', price:400 },
+  { id:12, package_name:'Standard Care', pet_type:'cat', duration:'Per Day', price:650 },
+  { id:13, package_name:'Premium Care', pet_type:'cat', duration:'Per Day', price:950 },
+  { id:14, package_name:'Basic Care', pet_type:'bird', duration:'Per Day', price:300 },
+  { id:15, package_name:'Standard Care', pet_type:'bird', duration:'Per Day', price:500 },
+  { id:16, package_name:'Premium Care', pet_type:'bird', duration:'Per Day', price:750 },
+]
+
 function Contact() {
   const [activeTab, setActiveTab] = useState('contact')
-  const [pricing, setPricing] = useState([])
+  const [pricing, setPricing] = useState(STATIC_PRICING)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
 
@@ -43,11 +63,13 @@ function Contact() {
   const fetchPricing = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/pricing.php`)
-      if (response.data.success) {
+      if (response.data.success && response.data.data.length > 0) {
         setPricing(response.data.data)
       }
+      // else keep static fallback
     } catch (error) {
-      console.error('Error fetching pricing:', error)
+      console.error('Error fetching pricing, using static data:', error)
+      // Keep static fallback - already set as default
     }
   }
 
@@ -65,12 +87,17 @@ function Contact() {
 
     try {
       const response = await axios.post(`${API_BASE_URL}/contacts.php`, contactForm)
-      setMessage({ type: 'success', text: response.data.message })
+      setMessage({ type: 'success', text: response.data.message || 'Message sent successfully!' })
       setContactForm({ name: '', email: '', phone: '', message: '' })
       // Scroll to top to show success message
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (error) {
-      setMessage({ type: 'error', text: error.response?.data?.error || 'Failed to send message' })
+      const errMsg = error.response?.data?.error || error.response?.data?.message || ''
+      if (errMsg.toLowerCase().includes('database') || errMsg.toLowerCase().includes('connection')) {
+        setMessage({ type: 'error', text: 'Service temporarily unavailable. Please call us directly at +91 82838 83463 or WhatsApp us.' })
+      } else {
+        setMessage({ type: 'error', text: 'Failed to send message. Please try again or call us directly.' })
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
       setLoading(false)
@@ -113,7 +140,12 @@ function Contact() {
         terms_agreed: false
       })
     } catch (error) {
-      setMessage({ type: 'error', text: error.response?.data?.error || 'Failed to book appointment' })
+      const errMsg = error.response?.data?.error || ''
+      if (errMsg.toLowerCase().includes('database') || errMsg.toLowerCase().includes('connection')) {
+        setMessage({ type: 'error', text: 'Service temporarily unavailable. Please call us at +91 82838 83463 to book.' })
+      } else {
+        setMessage({ type: 'error', text: 'Failed to book appointment. Please call us directly at +91 82838 83463.' })
+      }
     } finally {
       setLoading(false)
     }
