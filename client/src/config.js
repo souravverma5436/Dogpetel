@@ -1,5 +1,5 @@
 // API Base URL - automatically uses environment variable in production
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://dogpetel.onrender.com/api';
 
 export const CONTACT_INFO = {
   phone: '+918283883463',
