@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import axios from 'axios'
 import SplashScreen from './components/SplashScreen'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -10,12 +11,16 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import Gallery from './pages/Gallery'
 import Admin from './pages/Admin'
+import { API_BASE_URL } from './config'
 
 function App() {
   const [showSplash, setShowSplash] = useState(true)
   const [appReady, setAppReady] = useState(false)
 
   useEffect(() => {
+    // Wake up the Render backend (free tier sleeps after inactivity)
+    axios.get(`${API_BASE_URL}/test.php`).catch(() => {})
+
     // Check if splash has been shown in this session
     const splashShown = sessionStorage.getItem('splashShown')
     
