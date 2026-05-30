@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import axios from 'axios'
+import emailjs from '@emailjs/browser'
 import SplashScreen from './components/SplashScreen'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -10,7 +11,12 @@ import Pricing from './pages/Pricing'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Admin from './pages/Admin'
-import { API_BASE_URL } from './config'
+import { API_BASE_URL, EMAILJS_CONFIG } from './config'
+
+// Initialize EmailJS once at app startup
+if (EMAILJS_CONFIG.publicKey) {
+  emailjs.init(EMAILJS_CONFIG.publicKey)
+}
 
 function App() {
   const [showSplash, setShowSplash] = useState(true)

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { API_BASE_URL, CONTACT_INFO } from '../config'
+import emailjs from '@emailjs/browser'
+import { API_BASE_URL, CONTACT_INFO, EMAILJS_CONFIG } from '../config'
 import './Contact.css'
 
 // Static fallback pricing - DOG ONLY
@@ -80,19 +81,36 @@ function Contact() {
     setMessage({ type: '', text: '' })
 
     try {
+      // Try backend first
       const response = await axios.post(`${API_BASE_URL}/contacts`, contactForm)
       setMessage({ type: 'success', text: response.data.message || 'Message sent successfully!' })
       setContactForm({ name: '', email: '', phone: '', message: '' })
-      // Scroll to top to show success message
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (error) {
-      const errMsg = error.response?.data?.error || error.response?.data?.message || ''
-      if (errMsg.toLowerCase().includes('database') || errMsg.toLowerCase().includes('connection')) {
-        setMessage({ type: 'error', text: 'Service temporarily unavailable. Please call us directly at +91 82838 83463 or WhatsApp us.' })
-      } else {
-        setMessage({ type: 'error', text: 'Failed to send message. Please try again or call us directly.' })
+      // Backend failed - try EmailJS fallback
+      console.warn('Backend failed, trying EmailJS fallback...')
+      try {
+        await emailjs.send(
+          EMAILJS_CONFIG.serviceId,
+          EMAILJS_CONFIG.contactTemplateId,
+          {
+            from_name:    contactForm.name,
+            from_email:   contactForm.email,
+            phone:        contactForm.phone,
+            message:      contactForm.message,
+            to_email:     'petelpethotel@gmail.com',
+            reply_to:     contactForm.email,
+          },
+          EMAILJS_CONFIG.publicKey
+        )
+        setMessage({ type: 'success', text: 'Message sent successfully! We will get back to you soon.' })
+        setContactForm({ name: '', email: '', phone: '', message: '' })
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      } catch (emailErr) {
+        console.error('EmailJS also failed:', emailErr)
+        setMessage({ type: 'error', text: 'Failed to send message. Please call us at +91 82838 83463 or WhatsApp us.' })
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       }
-      window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
       setLoading(false)
     }
@@ -110,35 +128,56 @@ function Contact() {
     }
 
     try {
+      // Try backend first
       const response = await axios.post(`${API_BASE_URL}/appointments`, appointmentForm)
-      setMessage({ 
-        type: 'success', 
-        text: `Booking confirmed! Your booking ID is ${response.data.booking_id}. Check your email for details.` 
+      setMessage({
+        type: 'success',
+        text: `Booking confirmed! Your booking ID is ${response.data.booking_id}. Check your email for details.`
       })
-      // Reset form
       setAppointmentForm({
-        customer_name: '',
-        email: '',
-        phone: '',
-        pet_name: '',
-        pet_type: 'Dog',
-        breed: '',
-        age: '',
-        service: '',
-        price_per_day: 0,
-        booking_date: '',
-        time_slot: '',
-        pickup_datetime: '',
-        notes: '',
-        payment_method: 'cash',
-        terms_agreed: false
+        customer_name: '', email: '', phone: '', pet_name: '', pet_type: 'Dog',
+        breed: '', age: '', service: '', price_per_day: 0, booking_date: '',
+        time_slot: '', pickup_datetime: '', notes: '', payment_method: 'cash', terms_agreed: false
       })
     } catch (error) {
-      const errMsg = error.response?.data?.error || ''
-      if (errMsg.toLowerCase().includes('database') || errMsg.toLowerCase().includes('connection')) {
-        setMessage({ type: 'error', text: 'Service temporarily unavailable. Please call us at +91 82838 83463 to book.' })
-      } else {
-        setMessage({ type: 'error', text: 'Failed to book appointment. Please call us directly at +91 82838 83463.' })
+      // Backend failed - try EmailJS fallback
+      console.warn('Backend failed, trying EmailJS fallback for appointment...')
+      try {
+        await emailjs.send(
+          EMAILJS_CONFIG.serviceId,
+          EMAILJS_CONFIG.appointmentTemplateId,
+          {
+            owner_name:      appointmentForm.customer_name,
+            from_name:       appointmentForm.customer_name,
+            from_email:      appointmentForm.email,
+            phone:           appointmentForm.phone,
+            pet_name:        appointmentForm.pet_name,
+            pet_type:        appointmentForm.pet_type,
+            breed:           appointmentForm.breed || 'Not specified',
+            service:         appointmentForm.service,
+            price_per_day:   `₹${appointmentForm.price_per_day}`,
+            booking_date:    appointmentForm.booking_date,
+            time_slot:       appointmentForm.time_slot,
+            pickup_datetime: appointmentForm.pickup_datetime,
+            payment_method:  appointmentForm.payment_method,
+            notes:           appointmentForm.notes || 'None',
+            to_email:        'petelpethotel@gmail.com',
+            reply_to:        appointmentForm.email,
+          },
+          EMAILJS_CONFIG.publicKey
+        )
+        setMessage({
+          type: 'success',
+          text: 'Booking received! We will confirm your appointment shortly. Please call +91 82838 83463 for immediate confirmation.'
+        })
+        setAppointmentForm({
+          customer_name: '', email: '', phone: '', pet_name: '', pet_type: 'Dog',
+          breed: '', age: '', service: '', price_per_day: 0, booking_date: '',
+          time_slot: '', pickup_datetime: '', notes: '', payment_method: 'cash', terms_agreed: false
+        })
+      } catch (emailErr) {
+        console.error('EmailJS also failed:', emailErr)
+        setMessage({ type: 'error', text: 'Failed to book appointment. Please call us at +91 82838 83463.' })
       }
     } finally {
       setLoading(false)
