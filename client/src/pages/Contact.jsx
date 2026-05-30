@@ -94,10 +94,11 @@ function Contact() {
           EMAILJS_CONFIG.serviceId,
           EMAILJS_CONFIG.contactTemplateId,
           {
-            from_name:    contactForm.name,
-            from_email:   contactForm.email,
+            name:         contactForm.name,
+            email:        contactForm.email,
             phone:        contactForm.phone,
             message:      contactForm.message,
+            date:         new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
             to_email:     'petelpethotel@gmail.com',
             reply_to:     contactForm.email,
           },

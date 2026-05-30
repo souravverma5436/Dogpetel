@@ -50,12 +50,13 @@ const sendViaEmailJS = async (templateId, templateParams) => {
 const sendContactNotification = async (contact, dbFailed = false) => {
   console.log(`📧 Sending contact notification for: ${contact.name}`);
   return sendViaEmailJS('template_wcdhd06', {
-    from_name:   contact.name,
-    from_email:  contact.email,
+    name:        contact.name,
+    email:       contact.email,
     phone:       contact.phone,
     message:     dbFailed
       ? `⚠️ WARNING: NOT SAVED TO DATABASE\n\n${contact.message}`
       : contact.message,
+    date:        new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
     to_email:    ADMIN_EMAIL,
     reply_to:    contact.email,
     subject:     dbFailed
@@ -96,9 +97,10 @@ const sendCustomerConfirmation = async (apt) => {
   if (!apt.email) return false;
   console.log(`📧 Sending customer confirmation to: ${apt.email}`);
   return sendViaEmailJS('template_wcdhd06', {
-    from_name:   'PETEL Pet Hotel',
-    from_email:  ADMIN_EMAIL,
+    name:        'PETEL Pet Hotel',
+    email:       ADMIN_EMAIL,
     phone:       '+91 82838 83463',
+    date:        new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
     to_email:    apt.email,
     reply_to:    ADMIN_EMAIL,
     subject:     `✅ Booking Confirmed - ${apt.bookingId}`,
@@ -111,8 +113,9 @@ const sendStatusUpdateEmail = async (apt, newStatus) => {
   if (!apt.email) return false;
   console.log(`📧 Sending status update (${newStatus}) to: ${apt.email}`);
   return sendViaEmailJS('template_wcdhd06', {
-    from_name:   'PETEL Pet Hotel',
-    from_email:  ADMIN_EMAIL,
+    name:        'PETEL Pet Hotel',
+    email:       ADMIN_EMAIL,
+    date:        new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
     to_email:    apt.email,
     reply_to:    ADMIN_EMAIL,
     subject:     `Appointment ${newStatus} - ${apt.bookingId}`,
@@ -123,12 +126,13 @@ const sendStatusUpdateEmail = async (apt, newStatus) => {
 // DB warning email
 const sendDbWarningEmail = async (error) => {
   return sendViaEmailJS('template_wcdhd06', {
-    from_name:  'PETEL System',
-    from_email: ADMIN_EMAIL,
-    to_email:   ADMIN_EMAIL,
-    reply_to:   ADMIN_EMAIL,
-    subject:    '🚨 MongoDB Connection Issue',
-    message:    `Database connection error:\n${error}\n\nTime: ${new Date().toISOString()}`
+    name:        'PETEL System',
+    email:       ADMIN_EMAIL,
+    date:        new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+    to_email:    ADMIN_EMAIL,
+    reply_to:    ADMIN_EMAIL,
+    subject:     '🚨 MongoDB Connection Issue',
+    message:     `Database connection error:\n${error}\n\nTime: ${new Date().toISOString()}`
   });
 };
 
