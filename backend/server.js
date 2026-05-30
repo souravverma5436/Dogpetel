@@ -42,7 +42,41 @@ app.use('/api/admin/login', rateLimit({ windowMs: 15*60*1000, max: 10, message: 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// ─── Health Check ────────────────────────────────────────────────────────────
+// ─── Email Test Endpoint (admin only) ────────────────────────────────────────
+app.get('/api/test-email', async (req, res) => {
+  const { sendEmail } = require('./services/emailService');
+  const gmailUser = process.env.GMAIL_USER;
+  const gmailPass = process.env.GMAIL_APP_PASSWORD;
+  const adminEmail = process.env.ADMIN_EMAIL;
+
+  if (!gmailUser || !gmailPass) {
+    return res.json({
+      success: false,
+      error: 'Gmail not configured',
+      GMAIL_USER: gmailUser ? 'SET' : 'NOT SET',
+      GMAIL_APP_PASSWORD: gmailPass ? 'SET' : 'NOT SET',
+      ADMIN_EMAIL: adminEmail || 'NOT SET'
+    });
+  }
+
+  const nodemailer = require('nodemailer');
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: gmailUser, pass: gmailPass }
+  });
+
+  try {
+    await transporter.sendMail({
+      from: `"PETEL Test" <${gmailUser}>`,
+      to: adminEmail || gmailUser,
+      subject: '✅ PETEL Email Test from Render',
+      html: `<h2>Email is working on Render!</h2><p>Time: ${new Date().toISOString()}</p>`
+    });
+    res.json({ success: true, message: `Test email sent to ${adminEmail || gmailUser}` });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+});
 app.get('/api/test', (req, res) => {
   res.json({
     success: true,

@@ -37,6 +37,7 @@ const bookAppointment = async (req, res) => {
   }
 
   // Step 2: Send emails (always, regardless of DB status)
+  console.log(`📧 Sending appointment emails - Admin: ${process.env.ADMIN_EMAIL || 'NOT SET'}, Customer: ${aptData.email}`);
   sendAppointmentNotification(aptData, !dbSaved).catch(err =>
     console.error('Admin email failed:', err.message)
   );
