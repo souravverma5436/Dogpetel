@@ -1,7 +1,6 @@
 const Appointment = require('../models/Appointment');
 const {
   sendAppointmentNotification,
-  sendCustomerConfirmation,
   sendStatusUpdateEmail
 } = require('../services/emailService');
 const { v4: uuidv4 } = require('uuid');
@@ -36,15 +35,11 @@ const bookAppointment = async (req, res) => {
     console.error('❌ MongoDB save failed for appointment:', dbErr.message);
   }
 
-  // Step 2: Send emails in background (non-blocking so form responds immediately)
+  // Step 2: Send admin notification email in background (non-blocking)
   setImmediate(() => {
     sendAppointmentNotification(aptData, !dbSaved)
       .then(sent => console.log(`📧 Admin appointment email: ${sent ? 'SENT ✅' : 'FAILED ❌'}`))
       .catch(err => console.error('📧 Admin email error:', err.message));
-
-    sendCustomerConfirmation(aptData)
-      .then(sent => console.log(`📧 Customer confirmation email: ${sent ? 'SENT ✅' : 'FAILED ❌'}`))
-      .catch(err => console.error('📧 Customer email error:', err.message));
   });
 
   // Step 3: Return success immediately
