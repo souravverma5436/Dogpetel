@@ -5,27 +5,23 @@ let dbStatus = 'connected';
 const setDbStatus = (status) => { dbStatus = status; };
 const getDbStatus = () => dbStatus;
 
-const EMAILJS_SERVICE_ID  = process.env.EMAILJS_SERVICE_ID  || 'service_q73gazm';
-const EMAILJS_PUBLIC_KEY  = process.env.EMAILJS_PUBLIC_KEY  || '7Xigree0oJJUpQ51q';
-const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY || '';
-const ADMIN_EMAIL         = process.env.ADMIN_EMAIL         || 'petelpethotel@gmail.com';
+const EMAILJS_SERVICE_ID  = 'service_jylmpym';
+const EMAILJS_PUBLIC_KEY  = '7Xigree0oJJUpQ51q';
+const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY || 'fJ4NRz6jf0eAtvF_uXPPP';
+const ADMIN_EMAIL         = process.env.ADMIN_EMAIL || 'petelpethotel@gmail.com';
 
 // Send via EmailJS REST API
 const sendViaEmailJS = async (templateId, templateParams) => {
-  if (!EMAILJS_SERVICE_ID || !EMAILJS_PUBLIC_KEY || !templateId) {
-    console.log('⚠️ EmailJS not configured');
-    return false;
-  }
+  console.log(`📧 EmailJS call: service=${EMAILJS_SERVICE_ID}, template=${templateId}, key=${EMAILJS_PUBLIC_KEY.substring(0,6)}...`);
 
   try {
     const payload = {
-      service_id:  EMAILJS_SERVICE_ID,
-      template_id: templateId,
-      user_id:     EMAILJS_PUBLIC_KEY,
+      service_id:      EMAILJS_SERVICE_ID,
+      template_id:     templateId,
+      user_id:         EMAILJS_PUBLIC_KEY,
       template_params: templateParams
     };
 
-    // Add private key if available (for server-side calls)
     if (EMAILJS_PRIVATE_KEY) {
       payload.accessToken = EMAILJS_PRIVATE_KEY;
     }

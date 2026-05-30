@@ -17,7 +17,7 @@ export const CONTACT_INFO = {
 
 // EmailJS Configuration (frontend fallback when backend is down)
 export const EMAILJS_CONFIG = {
-  serviceId:           'service_q73gazm',
+  serviceId:           'service_jylmpym',
   contactTemplateId:   'template_wcdhd06',
   appointmentTemplateId: 'template_r5yrr8w',
   publicKey:           import.meta.env.VITE_EMAILJS_PUBLIC_KEY || ''

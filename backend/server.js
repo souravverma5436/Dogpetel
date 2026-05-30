@@ -47,18 +47,20 @@ app.use(express.urlencoded({ extended: true }));
 
 // ─── Email Test Endpoint ──────────────────────────────────────────────────────
 app.get('/api/test-email', async (req, res) => {
-  const serviceId  = process.env.EMAILJS_SERVICE_ID  || 'service_q73gazm';
-  const publicKey  = process.env.EMAILJS_PUBLIC_KEY  || '7Xigree0oJJUpQ51q';
-  const adminEmail = process.env.ADMIN_EMAIL         || 'petelpethotel@gmail.com';
+  const serviceId   = 'service_jylmpym';
+  const publicKey   = '7Xigree0oJJUpQ51q';
+  const privateKey  = process.env.EMAILJS_PRIVATE_KEY || 'fJ4NRz6jf0eAtvF_uXPPP';
+  const adminEmail  = process.env.ADMIN_EMAIL || 'petelpethotel@gmail.com';
 
   try {
     const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        service_id:  serviceId,
-        template_id: 'template_wcdhd06',
-        user_id:     publicKey,
+        service_id:   serviceId,
+        template_id:  'template_wcdhd06',
+        user_id:      publicKey,
+        accessToken:  privateKey,
         template_params: {
           from_name:  'PETEL System Test',
           from_email: adminEmail,
@@ -72,10 +74,10 @@ app.get('/api/test-email', async (req, res) => {
     });
 
     if (response.ok) {
-      res.json({ success: true, message: `Test email sent to ${adminEmail}` });
+      res.json({ success: true, message: `Test email sent to ${adminEmail}`, service: serviceId });
     } else {
       const text = await response.text();
-      res.json({ success: false, error: text, status: response.status });
+      res.json({ success: false, error: text, status: response.status, service: serviceId, privateKey: privateKey ? 'SET' : 'NOT SET' });
     }
   } catch (err) {
     res.json({ success: false, error: err.message });
