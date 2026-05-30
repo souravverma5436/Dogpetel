@@ -69,21 +69,22 @@ const sendContactNotification = async (contact, dbFailed = false) => {
 const sendAppointmentNotification = async (apt, dbFailed = false) => {
   console.log(`📧 Sending appointment notification: ${apt.bookingId}`);
   return sendViaEmailJS('template_r5yrr8w', {
-    owner_name:      apt.customerName,
-    from_name:       apt.customerName,
-    from_email:      apt.email,
+    customer_name:   apt.customerName,
+    email:           apt.email,
     phone:           apt.phone,
     pet_name:        apt.petName,
     pet_type:        apt.petType,
     breed:           apt.breed || 'Not specified',
+    age:             apt.age || 'Not specified',
     service:         apt.service,
     price_per_day:   `₹${apt.pricePerDay}`,
-    booking_date:    apt.bookingDate,
-    time_slot:       apt.timeSlot,
+    checkin_date:    apt.bookingDate,
+    checkin_time:    apt.timeSlot,
     pickup_datetime: apt.pickupDatetime,
     payment_method:  apt.paymentMethod,
     notes:           apt.notes || 'None',
     booking_id:      apt.bookingId || 'N/A',
+    date:            new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
     to_email:        ADMIN_EMAIL,
     reply_to:        apt.email,
     message:         dbFailed
@@ -92,33 +93,44 @@ const sendAppointmentNotification = async (apt, dbFailed = false) => {
   });
 };
 
-// Customer confirmation - reuse contact template with different content
+// Customer confirmation - uses appointment template with customer-facing content
 const sendCustomerConfirmation = async (apt) => {
   if (!apt.email) return false;
   console.log(`📧 Sending customer confirmation to: ${apt.email}`);
-  return sendViaEmailJS('template_wcdhd06', {
-    name:        'PETEL Pet Hotel',
-    email:       ADMIN_EMAIL,
-    phone:       '+91 82838 83463',
-    date:        new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
-    to_email:    apt.email,
-    reply_to:    ADMIN_EMAIL,
-    subject:     `✅ Booking Confirmed - ${apt.bookingId}`,
-    message:     `Dear ${apt.customerName},\n\nYour booking is confirmed!\n\nBooking ID: ${apt.bookingId}\nPet: ${apt.petName}\nService: ${apt.service}\nCheck-in: ${apt.bookingDate} at ${apt.timeSlot}\nPickup: ${apt.pickupDatetime}\nPrice: ₹${apt.pricePerDay}/day\n\nFor queries call: +91 82838 83463\n\nThank you,\nPETEL Pet Hotel`
+  return sendViaEmailJS('template_r5yrr8w', {
+    customer_name:   apt.customerName,
+    email:           apt.email,
+    phone:           apt.phone,
+    pet_name:        apt.petName,
+    pet_type:        apt.petType,
+    breed:           apt.breed || 'Not specified',
+    age:             apt.age || 'Not specified',
+    service:         apt.service,
+    price_per_day:   `₹${apt.pricePerDay}`,
+    checkin_date:    apt.bookingDate,
+    checkin_time:    apt.timeSlot,
+    pickup_datetime: apt.pickupDatetime,
+    payment_method:  apt.paymentMethod,
+    notes:           apt.notes || 'None',
+    booking_id:      apt.bookingId || 'N/A',
+    date:            new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+    to_email:        apt.email,
+    reply_to:        ADMIN_EMAIL,
+    message:         `✅ Booking Confirmed!\n\nBooking ID: ${apt.bookingId}\nFor queries call: +91 82838 83463`
   });
 };
 
-// Status update email to customer
+// Status update email to customer - uses contact template (simple message)
 const sendStatusUpdateEmail = async (apt, newStatus) => {
   if (!apt.email) return false;
   console.log(`📧 Sending status update (${newStatus}) to: ${apt.email}`);
   return sendViaEmailJS('template_wcdhd06', {
-    name:        'PETEL Pet Hotel',
-    email:       ADMIN_EMAIL,
+    name:        apt.customerName,
+    email:       apt.email,
+    phone:       apt.phone,
     date:        new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
     to_email:    apt.email,
     reply_to:    ADMIN_EMAIL,
-    subject:     `Appointment ${newStatus} - ${apt.bookingId}`,
     message:     `Dear ${apt.customerName},\n\nYour appointment status has been updated to: ${newStatus.toUpperCase()}\n\nBooking ID: ${apt.bookingId}\nPet: ${apt.petName}\n\nFor queries call: +91 82838 83463\n\nPETEL Pet Hotel`
   });
 };
