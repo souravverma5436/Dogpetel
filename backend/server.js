@@ -9,6 +9,9 @@ const { getDbStatus } = require('./services/emailService');
 
 const app = express();
 
+// Trust Render's proxy (required for rate limiting behind reverse proxy)
+app.set('trust proxy', 1);
+
 // Connect to MongoDB (non-blocking - app runs even if DB is down)
 connectDB();
 
@@ -42,37 +45,38 @@ app.use('/api/admin/login', rateLimit({ windowMs: 15*60*1000, max: 10, message: 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// ─── Email Test Endpoint (admin only) ────────────────────────────────────────
+// ─── Email Test Endpoint ──────────────────────────────────────────────────────
 app.get('/api/test-email', async (req, res) => {
-  const { sendEmail } = require('./services/emailService');
-  const gmailUser = process.env.GMAIL_USER;
-  const gmailPass = process.env.GMAIL_APP_PASSWORD;
-  const adminEmail = process.env.ADMIN_EMAIL;
-
-  if (!gmailUser || !gmailPass) {
-    return res.json({
-      success: false,
-      error: 'Gmail not configured',
-      GMAIL_USER: gmailUser ? 'SET' : 'NOT SET',
-      GMAIL_APP_PASSWORD: gmailPass ? 'SET' : 'NOT SET',
-      ADMIN_EMAIL: adminEmail || 'NOT SET'
-    });
-  }
-
-  const nodemailer = require('nodemailer');
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: gmailUser, pass: gmailPass }
-  });
+  const serviceId  = process.env.EMAILJS_SERVICE_ID  || 'service_q73gazm';
+  const publicKey  = process.env.EMAILJS_PUBLIC_KEY  || '7Xigree0oJJUpQ51q';
+  const adminEmail = process.env.ADMIN_EMAIL         || 'petelpethotel@gmail.com';
 
   try {
-    await transporter.sendMail({
-      from: `"PETEL Test" <${gmailUser}>`,
-      to: adminEmail || gmailUser,
-      subject: '✅ PETEL Email Test from Render',
-      html: `<h2>Email is working on Render!</h2><p>Time: ${new Date().toISOString()}</p>`
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id:  serviceId,
+        template_id: 'template_wcdhd06',
+        user_id:     publicKey,
+        template_params: {
+          from_name:  'PETEL System Test',
+          from_email: adminEmail,
+          to_email:   adminEmail,
+          reply_to:   adminEmail,
+          phone:      '+91 82838 83463',
+          subject:    '✅ PETEL Email Test from Render',
+          message:    `Email system working! Time: ${new Date().toISOString()}`
+        }
+      })
     });
-    res.json({ success: true, message: `Test email sent to ${adminEmail || gmailUser}` });
+
+    if (response.ok) {
+      res.json({ success: true, message: `Test email sent to ${adminEmail}` });
+    } else {
+      const text = await response.text();
+      res.json({ success: false, error: text, status: response.status });
+    }
   } catch (err) {
     res.json({ success: false, error: err.message });
   }

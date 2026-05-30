@@ -1,158 +1,138 @@
-const nodemailer = require('nodemailer');
+// Email Service - Uses EmailJS REST API (works on Render - no SMTP needed)
+// EmailJS sends via HTTP, not SMTP, so it's never blocked by hosting providers
 
 let dbStatus = 'connected';
 const setDbStatus = (status) => { dbStatus = status; };
 const getDbStatus = () => dbStatus;
 
-const createTransporter = () => {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) return null;
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // SSL
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD
-    },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000
-  });
-};
+const EMAILJS_SERVICE_ID  = process.env.EMAILJS_SERVICE_ID  || 'service_q73gazm';
+const EMAILJS_PUBLIC_KEY  = process.env.EMAILJS_PUBLIC_KEY  || '7Xigree0oJJUpQ51q';
+const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY || '';
+const ADMIN_EMAIL         = process.env.ADMIN_EMAIL         || 'petelpethotel@gmail.com';
 
-const sendEmail = async (options) => {
-  const transporter = createTransporter();
-  if (!transporter) {
-    console.log('⚠️ Email not configured - GMAIL_USER or GMAIL_APP_PASSWORD missing');
+// Send via EmailJS REST API
+const sendViaEmailJS = async (templateId, templateParams) => {
+  if (!EMAILJS_SERVICE_ID || !EMAILJS_PUBLIC_KEY || !templateId) {
+    console.log('⚠️ EmailJS not configured');
     return false;
   }
+
   try {
-    const info = await transporter.sendMail(options);
-    console.log(`✅ Email sent: ${info.messageId} → ${options.to}`);
-    return true;
+    const payload = {
+      service_id:  EMAILJS_SERVICE_ID,
+      template_id: templateId,
+      user_id:     EMAILJS_PUBLIC_KEY,
+      template_params: templateParams
+    };
+
+    // Add private key if available (for server-side calls)
+    if (EMAILJS_PRIVATE_KEY) {
+      payload.accessToken = EMAILJS_PRIVATE_KEY;
+    }
+
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (response.ok) {
+      console.log(`✅ EmailJS sent via template: ${templateId}`);
+      return true;
+    } else {
+      const text = await response.text();
+      console.error(`❌ EmailJS failed (${response.status}): ${text}`);
+      return false;
+    }
   } catch (err) {
-    console.error(`❌ Email FAILED to ${options.to}: ${err.message} (code: ${err.code})`);
+    console.error(`❌ EmailJS error: ${err.message}`);
     return false;
   }
 };
 
 // Contact notification to admin
 const sendContactNotification = async (contact, dbFailed = false) => {
-  const subject = dbFailed
-    ? `⚠️ WARNING: MongoDB Save Failed - Contact from ${contact.name}`
-    : `📩 New Contact Message from ${contact.name} - PETEL`;
-
-  return sendEmail({
-    from: `"PETEL Website" <${process.env.GMAIL_USER}>`,
-    to: process.env.ADMIN_EMAIL || process.env.GMAIL_USER,
-    subject,
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        ${dbFailed ? '<div style="background:#ff4444;color:white;padding:12px;border-radius:5px;margin-bottom:15px;"><strong>⚠️ WARNING: NOT saved to database.</strong></div>' : ''}
-        <h2 style="color:#0B1F3B;border-bottom:2px solid #0B1F3B;padding-bottom:10px;">New Contact - PETEL Pet Hotel</h2>
-        <table style="width:100%;border-collapse:collapse;">
-          <tr><td style="padding:8px;font-weight:bold;">Name:</td><td style="padding:8px;">${contact.name}</td></tr>
-          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:bold;">Email:</td><td style="padding:8px;"><a href="mailto:${contact.email}">${contact.email}</a></td></tr>
-          <tr><td style="padding:8px;font-weight:bold;">Phone:</td><td style="padding:8px;"><a href="tel:${contact.phone}">${contact.phone}</a></td></tr>
-          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:bold;vertical-align:top;">Message:</td><td style="padding:8px;">${contact.message}</td></tr>
-        </table>
-        <p style="color:#888;font-size:12px;margin-top:20px;">Received: ${new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'})}</p>
-      </div>`
+  console.log(`📧 Sending contact notification for: ${contact.name}`);
+  return sendViaEmailJS('template_wcdhd06', {
+    from_name:   contact.name,
+    from_email:  contact.email,
+    phone:       contact.phone,
+    message:     dbFailed
+      ? `⚠️ WARNING: NOT SAVED TO DATABASE\n\n${contact.message}`
+      : contact.message,
+    to_email:    ADMIN_EMAIL,
+    reply_to:    contact.email,
+    subject:     dbFailed
+      ? `⚠️ DB FAILED - Contact from ${contact.name}`
+      : `New Contact from ${contact.name}`
   });
 };
 
 // Appointment notification to admin
 const sendAppointmentNotification = async (apt, dbFailed = false) => {
-  const subject = dbFailed
-    ? `⚠️ WARNING: Booking NOT Saved to DB - ${apt.bookingId || 'NO-ID'}`
-    : `🐾 New Appointment - ${apt.bookingId} - PETEL`;
-
-  return sendEmail({
-    from: `"PETEL Website" <${process.env.GMAIL_USER}>`,
-    to: process.env.ADMIN_EMAIL || process.env.GMAIL_USER,
-    subject,
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        ${dbFailed ? '<div style="background:#ff4444;color:white;padding:12px;border-radius:5px;margin-bottom:15px;"><strong>⚠️ WARNING: NOT saved to database.</strong></div>' : ''}
-        <h2 style="color:#0B1F3B;border-bottom:2px solid #0B1F3B;padding-bottom:10px;">New Appointment - PETEL</h2>
-        <div style="background:#e8f4fd;padding:10px;border-radius:5px;margin-bottom:15px;"><strong>Booking ID: ${apt.bookingId || 'N/A'}</strong></div>
-        <table style="width:100%;border-collapse:collapse;">
-          <tr><td style="padding:8px;font-weight:bold;">Customer:</td><td style="padding:8px;">${apt.customerName}</td></tr>
-          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:bold;">Phone:</td><td style="padding:8px;">${apt.phone}</td></tr>
-          <tr><td style="padding:8px;font-weight:bold;">Email:</td><td style="padding:8px;">${apt.email}</td></tr>
-          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:bold;">Pet:</td><td style="padding:8px;">${apt.petName} (${apt.petType})</td></tr>
-          <tr><td style="padding:8px;font-weight:bold;">Service:</td><td style="padding:8px;">${apt.service} - ₹${apt.pricePerDay}/day</td></tr>
-          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:bold;">Check-in:</td><td style="padding:8px;">${apt.bookingDate} at ${apt.timeSlot}</td></tr>
-          <tr><td style="padding:8px;font-weight:bold;">Pickup:</td><td style="padding:8px;">${apt.pickupDatetime}</td></tr>
-          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:bold;">Payment:</td><td style="padding:8px;">${apt.paymentMethod}</td></tr>
-          ${apt.notes ? `<tr><td style="padding:8px;font-weight:bold;">Notes:</td><td style="padding:8px;">${apt.notes}</td></tr>` : ''}
-        </table>
-        <p style="color:#888;font-size:12px;margin-top:20px;">Booked: ${new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'})}</p>
-      </div>`
+  console.log(`📧 Sending appointment notification: ${apt.bookingId}`);
+  return sendViaEmailJS('template_r5yrr8w', {
+    owner_name:      apt.customerName,
+    from_name:       apt.customerName,
+    from_email:      apt.email,
+    phone:           apt.phone,
+    pet_name:        apt.petName,
+    pet_type:        apt.petType,
+    breed:           apt.breed || 'Not specified',
+    service:         apt.service,
+    price_per_day:   `₹${apt.pricePerDay}`,
+    booking_date:    apt.bookingDate,
+    time_slot:       apt.timeSlot,
+    pickup_datetime: apt.pickupDatetime,
+    payment_method:  apt.paymentMethod,
+    notes:           apt.notes || 'None',
+    booking_id:      apt.bookingId || 'N/A',
+    to_email:        ADMIN_EMAIL,
+    reply_to:        apt.email,
+    message:         dbFailed
+      ? `⚠️ WARNING: NOT SAVED TO DATABASE\nBooking ID: ${apt.bookingId}`
+      : `Booking ID: ${apt.bookingId}`
   });
 };
 
-// Confirmation email to customer
+// Customer confirmation - reuse contact template with different content
 const sendCustomerConfirmation = async (apt) => {
   if (!apt.email) return false;
-  return sendEmail({
-    from: `"PETEL Pet Hotel" <${process.env.GMAIL_USER}>`,
-    to: apt.email,
-    subject: `✅ Booking Confirmed - ${apt.bookingId} - PETEL`,
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <h2 style="color:#0B1F3B;">Your Booking is Confirmed! 🐾</h2>
-        <p>Dear ${apt.customerName},</p>
-        <p>Thank you for choosing PETEL Pet Hotel.</p>
-        <div style="background:#e8f4fd;padding:15px;border-radius:8px;margin:20px 0;">
-          <p><strong>Booking ID:</strong> ${apt.bookingId}</p>
-          <p><strong>Pet:</strong> ${apt.petName}</p>
-          <p><strong>Service:</strong> ${apt.service}</p>
-          <p><strong>Check-in:</strong> ${apt.bookingDate} at ${apt.timeSlot}</p>
-          <p><strong>Pickup:</strong> ${apt.pickupDatetime}</p>
-          <p><strong>Price:</strong> ₹${apt.pricePerDay}/day</p>
-        </div>
-        <p>For queries, call <strong>+91 82838 83463</strong>.</p>
-        <p style="color:#888;font-size:12px;">PETEL - A Pet Hotel | 24/7</p>
-      </div>`
+  console.log(`📧 Sending customer confirmation to: ${apt.email}`);
+  return sendViaEmailJS('template_wcdhd06', {
+    from_name:   'PETEL Pet Hotel',
+    from_email:  ADMIN_EMAIL,
+    phone:       '+91 82838 83463',
+    to_email:    apt.email,
+    reply_to:    ADMIN_EMAIL,
+    subject:     `✅ Booking Confirmed - ${apt.bookingId}`,
+    message:     `Dear ${apt.customerName},\n\nYour booking is confirmed!\n\nBooking ID: ${apt.bookingId}\nPet: ${apt.petName}\nService: ${apt.service}\nCheck-in: ${apt.bookingDate} at ${apt.timeSlot}\nPickup: ${apt.pickupDatetime}\nPrice: ₹${apt.pricePerDay}/day\n\nFor queries call: +91 82838 83463\n\nThank you,\nPETEL Pet Hotel`
   });
 };
 
 // Status update email to customer
 const sendStatusUpdateEmail = async (apt, newStatus) => {
   if (!apt.email) return false;
-  const statusInfo = {
-    confirmed: { emoji: '✅', color: '#4CAF50', text: 'Your appointment has been confirmed!' },
-    cancelled:  { emoji: '❌', color: '#f44336', text: 'Your appointment has been cancelled.' },
-    completed:  { emoji: '🎉', color: '#2196F3', text: 'Your appointment is completed. Thank you!' },
-  };
-  const info = statusInfo[newStatus] || { emoji: '📋', color: '#0B1F3B', text: `Status: ${newStatus}` };
-
-  return sendEmail({
-    from: `"PETEL Pet Hotel" <${process.env.GMAIL_USER}>`,
-    to: apt.email,
-    subject: `${info.emoji} Appointment ${newStatus} - ${apt.bookingId}`,
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <h2 style="color:${info.color};">${info.emoji} ${info.text}</h2>
-        <p>Dear ${apt.customerName},</p>
-        <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:20px 0;">
-          <p><strong>Booking ID:</strong> ${apt.bookingId}</p>
-          <p><strong>Pet:</strong> ${apt.petName}</p>
-          <p><strong>Status:</strong> <span style="color:${info.color};font-weight:bold;">${newStatus.toUpperCase()}</span></p>
-        </div>
-        <p>For queries, call <strong>+91 82838 83463</strong>.</p>
-      </div>`
+  console.log(`📧 Sending status update (${newStatus}) to: ${apt.email}`);
+  return sendViaEmailJS('template_wcdhd06', {
+    from_name:   'PETEL Pet Hotel',
+    from_email:  ADMIN_EMAIL,
+    to_email:    apt.email,
+    reply_to:    ADMIN_EMAIL,
+    subject:     `Appointment ${newStatus} - ${apt.bookingId}`,
+    message:     `Dear ${apt.customerName},\n\nYour appointment status has been updated to: ${newStatus.toUpperCase()}\n\nBooking ID: ${apt.bookingId}\nPet: ${apt.petName}\n\nFor queries call: +91 82838 83463\n\nPETEL Pet Hotel`
   });
 };
 
 // DB warning email
 const sendDbWarningEmail = async (error) => {
-  return sendEmail({
-    from: `"PETEL System" <${process.env.GMAIL_USER}>`,
-    to: process.env.ADMIN_EMAIL || process.env.GMAIL_USER,
-    subject: '🚨 PETEL: MongoDB Connection Issue',
-    html: `<h2 style="color:#f44336;">🚨 Database Warning</h2><p>Error: ${error}</p><p>Time: ${new Date().toISOString()}</p>`
+  return sendViaEmailJS('template_wcdhd06', {
+    from_name:  'PETEL System',
+    from_email: ADMIN_EMAIL,
+    to_email:   ADMIN_EMAIL,
+    reply_to:   ADMIN_EMAIL,
+    subject:    '🚨 MongoDB Connection Issue',
+    message:    `Database connection error:\n${error}\n\nTime: ${new Date().toISOString()}`
   });
 };
 
