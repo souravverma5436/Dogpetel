@@ -18,16 +18,14 @@ const submitContact = async (req, res) => {
     console.error('❌ MongoDB save failed for contact:', dbErr.message);
   }
 
-  // Step 2: Send email notification (always, regardless of DB status)
-  console.log(`📧 Sending contact email to: ${process.env.ADMIN_EMAIL || process.env.GMAIL_USER || 'NOT CONFIGURED'}`);
-  try {
-    const emailSent = await sendContactNotification(savedContact, !dbSaved);
-    console.log(`📧 Contact email result: ${emailSent ? 'SENT' : 'FAILED'}`);
-  } catch (err) {
-    console.error('📧 Contact email exception:', err.message);
-  }
+  // Step 2: Send email in background (non-blocking so form responds immediately)
+  setImmediate(() => {
+    sendContactNotification(savedContact, !dbSaved)
+      .then(sent => console.log(`📧 Contact email: ${sent ? 'SENT ✅' : 'FAILED ❌'}`))
+      .catch(err => console.error('📧 Contact email error:', err.message));
+  });
 
-  // Step 3: Always return success to user
+  // Step 3: Return success immediately
   res.status(201).json({
     success: true,
     message: `Thank you for contacting us! We will get back to you soon at ${phone}`,

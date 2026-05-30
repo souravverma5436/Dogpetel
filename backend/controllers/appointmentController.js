@@ -36,22 +36,22 @@ const bookAppointment = async (req, res) => {
     console.error('❌ MongoDB save failed for appointment:', dbErr.message);
   }
 
-  // Step 2: Send emails (always, regardless of DB status)
-  console.log(`📧 Sending appointment emails - Admin: ${process.env.ADMIN_EMAIL || 'NOT SET'}, Customer: ${aptData.email}`);
-  try {
-    const adminSent = await sendAppointmentNotification(aptData, !dbSaved);
-    console.log(`📧 Admin appointment email: ${adminSent ? 'SENT' : 'FAILED'}`);
-    const customerSent = await sendCustomerConfirmation(aptData);
-    console.log(`📧 Customer confirmation email: ${customerSent ? 'SENT' : 'FAILED'}`);
-  } catch (err) {
-    console.error('📧 Appointment email exception:', err.message);
-  }
+  // Step 2: Send emails in background (non-blocking so form responds immediately)
+  setImmediate(() => {
+    sendAppointmentNotification(aptData, !dbSaved)
+      .then(sent => console.log(`📧 Admin appointment email: ${sent ? 'SENT ✅' : 'FAILED ❌'}`))
+      .catch(err => console.error('📧 Admin email error:', err.message));
 
-  // Step 3: Always return success to user
+    sendCustomerConfirmation(aptData)
+      .then(sent => console.log(`📧 Customer confirmation email: ${sent ? 'SENT ✅' : 'FAILED ❌'}`))
+      .catch(err => console.error('📧 Customer email error:', err.message));
+  });
+
+  // Step 3: Return success immediately
   res.status(201).json({
     success: true,
     booking_id: aptData.bookingId,
-    message: `Appointment booked successfully! Booking ID: ${aptData.bookingId}. Check your email for confirmation.`,
+    message: `Appointment booked! Booking ID: ${aptData.bookingId}. Check your email for confirmation.`,
     saved: dbSaved
   });
 };
