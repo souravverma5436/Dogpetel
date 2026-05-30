@@ -3,7 +3,6 @@ import axios from 'axios'
 import { API_BASE_URL } from '../config'
 import './Admin.css'
 
-// Attach JWT to every request
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem('admin_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
@@ -11,23 +10,24 @@ axios.interceptors.request.use((config) => {
 })
 
 function Admin() {
-  const [isLoggedIn, setIsLoggedIn]   = useState(() => !!localStorage.getItem('admin_token'))
-  const [password, setPassword]       = useState('')
+  const [isLoggedIn, setIsLoggedIn]     = useState(() => !!localStorage.getItem('admin_token'))
+  const [password, setPassword]         = useState('')
   const [appointments, setAppointments] = useState([])
-  const [contacts, setContacts]       = useState([])
-  const [pricing, setPricing]         = useState([])
-  const [gallery, setGallery]         = useState([])
-  const [searchTerm, setSearchTerm]   = useState('')
+  const [contacts, setContacts]         = useState([])
+  const [pricing, setPricing]           = useState([])
+  const [searchTerm, setSearchTerm]     = useState('')
   const [statusFilter, setStatusFilter] = useState('')
-  const [loading, setLoading]         = useState(false)
-  const [message, setMessage]         = useState({ type: '', text: '' })
-  const [activeTab, setActiveTab]     = useState('appointments')
-  const [newImage, setNewImage]       = useState({ image_url: '', title: '', description: '' })
+  const [loading, setLoading]           = useState(false)
+  const [message, setMessage]           = useState({ type: '', text: '' })
+  const [activeTab, setActiveTab]       = useState('appointments')
+  const [health, setHealth]             = useState(null)
+  const [editingPrices, setEditingPrices] = useState({})
 
   useEffect(() => {
     if (isLoggedIn) {
       fetchAll()
-      const interval = setInterval(fetchAll, 20000)
+      fetchHealth()
+      const interval = setInterval(() => { fetchAll(); fetchHealth(); }, 30000)
       return () => clearInterval(interval)
     }
   }, [isLoggedIn, searchTerm, statusFilter])
@@ -36,7 +36,13 @@ function Admin() {
     fetchAppointments()
     fetchContacts()
     fetchPricing()
-    fetchGallery()
+  }
+
+  const fetchHealth = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/system/health`)
+      setHealth(res.data)
+    } catch { setHealth(null) }
   }
 
   const handleLogin = async (e) => {
@@ -56,131 +62,87 @@ function Admin() {
     }
   }
 
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+    localStorage.removeItem('admin_token')
+  }
+
   const fetchAppointments = async () => {
     try {
       const params = new URLSearchParams()
       if (searchTerm) params.append('search', searchTerm)
       if (statusFilter) params.append('status', statusFilter)
-      const response = await axios.get(`${API_BASE_URL}/admin/appointments?${params}`)
-      if (response.data.success) setAppointments(response.data.data)
-    } catch (error) {
-      if (error.response?.status === 401) handleLogout()
+      const res = await axios.get(`${API_BASE_URL}/admin/appointments?${params}`)
+      if (res.data.success) setAppointments(res.data.data)
+    } catch (err) {
+      if (err.response?.status === 401) handleLogout()
     }
   }
 
   const fetchContacts = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/contacts`)
-      if (response.data.success) setContacts(response.data.data)
-    } catch (error) {
-      if (error.response?.status === 401) handleLogout()
+      const res = await axios.get(`${API_BASE_URL}/admin/contacts`)
+      if (res.data.success) setContacts(res.data.data)
+    } catch (err) {
+      if (err.response?.status === 401) handleLogout()
     }
   }
 
   const fetchPricing = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/pricing`)
-      if (response.data.success) setPricing(response.data.data)
-    } catch (error) {
-      console.error('Error fetching pricing:', error)
-    }
-  }
-
-  const fetchGallery = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/admin/gallery`)
-      if (response.data.success) setGallery(response.data.data)
-    } catch (error) {
-      console.error('Error fetching gallery:', error)
-    }
-  }
-
-  const handleLogout = () => {
-    setIsLoggedIn(false)
-    localStorage.removeItem('admin_token')
-    setMessage({ type: 'error', text: 'Session expired. Please login again.' })
+      const res = await axios.get(`${API_BASE_URL}/admin/pricing`)
+      if (res.data.success) {
+        setPricing(res.data.data)
+        // Initialize editing prices
+        const prices = {}
+        res.data.data.forEach(item => { prices[item._id] = item.price })
+        setEditingPrices(prices)
+      }
+    } catch (err) { console.error('Error fetching pricing:', err) }
   }
 
   const updateAppointment = async (id, updates) => {
     try {
       await axios.put(`${API_BASE_URL}/admin/appointments/${id}`, updates)
-      setMessage({ type: 'success', text: 'Appointment updated' })
+      showMsg('success', 'Appointment updated' + (updates.status ? ` - Customer notified via email` : ''))
       fetchAppointments()
-    } catch {
-      setMessage({ type: 'error', text: 'Failed to update appointment' })
-    }
+    } catch { showMsg('error', 'Failed to update appointment') }
   }
 
   const deleteAppointment = async (id) => {
     if (!confirm('Delete this appointment?')) return
     try {
       await axios.delete(`${API_BASE_URL}/admin/appointments/${id}`)
-      setMessage({ type: 'success', text: 'Appointment deleted' })
+      showMsg('success', 'Appointment deleted')
       fetchAppointments()
-    } catch {
-      setMessage({ type: 'error', text: 'Failed to delete appointment' })
-    }
+    } catch { showMsg('error', 'Failed to delete appointment') }
   }
 
   const deleteContact = async (id) => {
     if (!confirm('Delete this contact message?')) return
     try {
       await axios.delete(`${API_BASE_URL}/admin/contacts/${id}`)
-      setMessage({ type: 'success', text: 'Contact deleted' })
+      showMsg('success', 'Contact deleted')
       fetchContacts()
-    } catch {
-      setMessage({ type: 'error', text: 'Failed to delete contact' })
-    }
+    } catch { showMsg('error', 'Failed to delete contact') }
   }
 
-  const updatePrice = async (id, price) => {
+  const savePrice = async (id) => {
+    const newPrice = parseFloat(editingPrices[id])
+    if (!newPrice || newPrice <= 0) return showMsg('error', 'Invalid price')
     try {
-      await axios.put(`${API_BASE_URL}/admin/pricing/${id}`, { price })
-      setMessage({ type: 'success', text: 'Price updated' })
+      await axios.put(`${API_BASE_URL}/admin/pricing/${id}`, { price: newPrice })
+      showMsg('success', 'Price updated successfully!')
       fetchPricing()
-    } catch {
-      setMessage({ type: 'error', text: 'Failed to update price' })
-    }
+    } catch { showMsg('error', 'Failed to update price') }
   }
 
-  const addImage = async (e) => {
-    e.preventDefault()
-    if (!newImage.image_url) {
-      setMessage({ type: 'error', text: 'Image URL is required' })
-      return
-    }
-    try {
-      await axios.post(`${API_BASE_URL}/admin/gallery`, newImage)
-      setMessage({ type: 'success', text: 'Image added to gallery' })
-      setNewImage({ image_url: '', title: '', description: '' })
-      fetchGallery()
-    } catch {
-      setMessage({ type: 'error', text: 'Failed to add image' })
-    }
+  const showMsg = (type, text) => {
+    setMessage({ type, text })
+    setTimeout(() => setMessage({ type: '', text: '' }), 4000)
   }
 
-  const toggleImageStatus = async (id, currentStatus) => {
-    try {
-      await axios.put(`${API_BASE_URL}/admin/gallery/${id}`, { is_active: !currentStatus })
-      setMessage({ type: 'success', text: 'Image status updated' })
-      fetchGallery()
-    } catch {
-      setMessage({ type: 'error', text: 'Failed to update image' })
-    }
-  }
-
-  const deleteImage = async (id) => {
-    if (!confirm('Delete this image?')) return
-    try {
-      await axios.delete(`${API_BASE_URL}/admin/gallery/${id}`)
-      setMessage({ type: 'success', text: 'Image deleted' })
-      fetchGallery()
-    } catch {
-      setMessage({ type: 'error', text: 'Failed to delete image' })
-    }
-  }
-
-  // Login screen
+  // ── Login Screen ──────────────────────────────────────────────────────────
   if (!isLoggedIn) {
     return (
       <div className="admin-login">
@@ -189,17 +151,9 @@ function Admin() {
           <form onSubmit={handleLogin}>
             <div className="form-group">
               <label>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="new-password"
-                required
-              />
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required />
             </div>
-            {message.text && (
-              <div className={`message ${message.type}`}>{message.text}</div>
-            )}
+            {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </button>
@@ -209,43 +163,46 @@ function Admin() {
     )
   }
 
+  // ── Dashboard ─────────────────────────────────────────────────────────────
   return (
     <div className="admin-dashboard">
       <div className="admin-header">
-        <h1>PETEL Admin Dashboard</h1>
+        <div>
+          <h1>PETEL Admin Dashboard</h1>
+          {health && (
+            <div style={{ display:'flex', gap:'12px', marginTop:'8px', flexWrap:'wrap' }}>
+              <span style={{ fontSize:'13px', padding:'4px 10px', borderRadius:'20px', background: health.database==='connected' ? 'rgba(76,175,80,0.2)' : 'rgba(244,67,54,0.2)', color: health.database==='connected' ? '#4CAF50' : '#f44336', border: `1px solid ${health.database==='connected' ? '#4CAF50' : '#f44336'}` }}>
+                🗄️ DB: {health.database}
+              </span>
+              <span style={{ fontSize:'13px', padding:'4px 10px', borderRadius:'20px', background:'rgba(33,150,243,0.2)', color:'#2196F3', border:'1px solid #2196F3' }}>
+                📧 Email: {health.email}
+              </span>
+              <span style={{ fontSize:'13px', padding:'4px 10px', borderRadius:'20px', background:'rgba(76,175,80,0.2)', color:'#4CAF50', border:'1px solid #4CAF50' }}>
+                🚀 Server: {health.server}
+              </span>
+            </div>
+          )}
+        </div>
         <button onClick={handleLogout} className="btn btn-secondary">Logout</button>
       </div>
 
       <div className="admin-tabs">
-        {['appointments', 'contacts', 'pricing', 'gallery'].map(tab => (
-          <button
-            key={tab}
-            className={`tab ${activeTab === tab ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab)}
-          >
+        {['appointments', 'contacts', 'pricing'].map(tab => (
+          <button key={tab} className={`tab ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>
             {tab === 'appointments' && `Appointments (${appointments.length})`}
             {tab === 'contacts' && <>Contact Messages ({contacts.length}){contacts.length > 0 && <span className="notification-badge">{contacts.length}</span>}</>}
             {tab === 'pricing' && 'Pricing Management'}
-            {tab === 'gallery' && `Gallery (${gallery.length})`}
           </button>
         ))}
       </div>
 
-      {message.text && (
-        <div className={`message ${message.type}`}>{message.text}</div>
-      )}
+      {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
 
-      {/* APPOINTMENTS */}
+      {/* ── APPOINTMENTS ── */}
       {activeTab === 'appointments' && (
         <div className="appointments-section">
           <div className="filters">
-            <input
-              type="text"
-              placeholder="Search by name, email, phone, or booking ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
+            <input type="text" placeholder="Search by name, email, phone, or booking ID..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="filter-select">
               <option value="">All Status</option>
               <option value="pending">Pending</option>
@@ -254,7 +211,6 @@ function Admin() {
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
-
           <div className="appointments-list">
             {appointments.map((apt) => (
               <div key={apt.id || apt._id} className="appointment-card">
@@ -295,7 +251,7 @@ function Admin() {
         </div>
       )}
 
-      {/* CONTACTS */}
+      {/* ── CONTACTS ── */}
       {activeTab === 'contacts' && (
         <div className="contacts-section">
           <h2>Contact Messages</h2>
@@ -309,10 +265,7 @@ function Admin() {
                 <div className="contact-details">
                   <div className="detail-row"><strong>Email:</strong> {contact.email}</div>
                   <div className="detail-row"><strong>Phone:</strong> {contact.phone}</div>
-                  <div className="detail-row message-row">
-                    <strong>Message:</strong>
-                    <p>{contact.message}</p>
-                  </div>
+                  <div className="detail-row message-row"><strong>Message:</strong><p>{contact.message}</p></div>
                 </div>
                 <div className="contact-actions">
                   <a href={`tel:${contact.phone}`} className="btn btn-primary">📞 Call</a>
@@ -326,85 +279,40 @@ function Admin() {
         </div>
       )}
 
-      {/* PRICING */}
+      {/* ── PRICING ── */}
       {activeTab === 'pricing' && (
         <div className="pricing-section">
           <h2>Manage Pricing</h2>
+          <p style={{ color:'rgba(255,255,255,0.7)', marginBottom:'20px', fontSize:'14px' }}>
+            Edit prices below and click Save to update. Changes reflect immediately on the website.
+          </p>
           <div className="pricing-list">
             {pricing.map((item) => (
               <div key={item._id || item.id} className="pricing-item">
                 <div className="pricing-info">
                   <h3>{item.packageName || item.package_name}</h3>
-                  <p>{item.petType || item.pet_type} - {item.duration}</p>
+                  <p>{item.petType || item.pet_type} — {item.duration}</p>
                 </div>
-                <div className="pricing-edit">
+                <div className="pricing-edit" style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                   <span className="price-label">₹</span>
                   <input
                     type="number"
-                    defaultValue={item.price}
-                    onBlur={(e) => {
-                      const newPrice = parseFloat(e.target.value)
-                      if (newPrice !== item.price && newPrice > 0) {
-                        updatePrice(item._id || item.id, newPrice)
-                      }
-                    }}
+                    value={editingPrices[item._id] ?? item.price}
+                    onChange={(e) => setEditingPrices(prev => ({ ...prev, [item._id]: e.target.value }))}
                     className="price-input"
+                    min="1"
                   />
+                  <button
+                    onClick={() => savePrice(item._id)}
+                    className="btn btn-primary"
+                    style={{ padding:'8px 16px', fontSize:'13px', whiteSpace:'nowrap' }}
+                  >
+                    Save
+                  </button>
                 </div>
               </div>
             ))}
-            {pricing.length === 0 && <div className="no-data">No pricing data</div>}
-          </div>
-        </div>
-      )}
-
-      {/* GALLERY */}
-      {activeTab === 'gallery' && (
-        <div className="gallery-section">
-          <h2>Gallery Management</h2>
-          <div className="add-image-form">
-            <h3>Add New Image</h3>
-            <form onSubmit={addImage}>
-              <div className="form-group">
-                <label>Image URL *</label>
-                <input type="url" placeholder="https://example.com/image.jpg" value={newImage.image_url} onChange={(e) => setNewImage({...newImage, image_url: e.target.value})} required />
-                <small>Upload to <a href="https://imgur.com/upload" target="_blank" rel="noopener noreferrer">Imgur</a> and paste URL</small>
-              </div>
-              <div className="form-group">
-                <label>Title (Optional)</label>
-                <input type="text" placeholder="Happy pets at PETEL" value={newImage.title} onChange={(e) => setNewImage({...newImage, title: e.target.value})} />
-              </div>
-              <div className="form-group">
-                <label>Description (Optional)</label>
-                <textarea placeholder="Description..." value={newImage.description} onChange={(e) => setNewImage({...newImage, description: e.target.value})} rows="3"></textarea>
-              </div>
-              <button type="submit" className="btn btn-primary">Add Image</button>
-            </form>
-          </div>
-
-          <div className="gallery-list">
-            <h3>Current Gallery Images ({gallery.length})</h3>
-            {gallery.length === 0 ? (
-              <div className="no-data">No images in gallery yet</div>
-            ) : (
-              <div className="gallery-grid-admin">
-                {gallery.map((image) => (
-                  <div key={image._id || image.id} className={`gallery-card ${!(image.isActive ?? image.is_active) ? 'inactive' : ''}`}>
-                    <img src={image.imageUrl || image.image_url} alt={image.title || 'Gallery image'} />
-                    <div className="gallery-card-info">
-                      <h4>{image.title || 'Untitled'}</h4>
-                      {image.description && <p>{image.description}</p>}
-                      <div className="gallery-card-actions">
-                        <button onClick={() => toggleImageStatus(image._id || image.id, image.isActive ?? image.is_active)} className={`btn ${(image.isActive ?? image.is_active) ? 'btn-secondary' : 'btn-primary'}`}>
-                          {(image.isActive ?? image.is_active) ? 'Hide' : 'Show'}
-                        </button>
-                        <button onClick={() => deleteImage(image._id || image.id)} className="btn btn-danger">Delete</button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            {pricing.length === 0 && <div className="no-data">No pricing data. <a href={`${API_BASE_URL}/seed`} target="_blank" rel="noopener noreferrer" style={{color:'#4fc3f7'}}>Run seed</a></div>}
           </div>
         </div>
       )}

@@ -1,49 +1,63 @@
 const Appointment = require('../models/Appointment');
-const { sendAppointmentNotification } = require('../services/emailService');
+const {
+  sendAppointmentNotification,
+  sendCustomerConfirmation,
+  sendStatusUpdateEmail
+} = require('../services/emailService');
+const { v4: uuidv4 } = require('uuid');
 
 // POST /api/appointments - Book appointment
+// MongoDB-first with email fallback
 const bookAppointment = async (req, res) => {
+  const {
+    customer_name, email, phone, pet_name, pet_type, breed, age,
+    service, price_per_day, booking_date, time_slot, pickup_datetime,
+    notes, payment_method
+  } = req.body;
+
+  const bookingId = 'PETEL' + uuidv4().replace(/-/g,'').substring(0,8).toUpperCase();
+  let dbSaved = false;
+  let aptData = {
+    bookingId, customerName: customer_name, email, phone,
+    petName: pet_name, petType: pet_type || 'Dog', breed, age,
+    service, pricePerDay: price_per_day,
+    bookingDate: booking_date, timeSlot: time_slot,
+    pickupDatetime: pickup_datetime, notes,
+    paymentMethod: payment_method || 'cash'
+  };
+
+  // Step 1: Try saving to MongoDB
   try {
-    const {
-      customer_name, email, phone, pet_name, pet_type, breed, age,
-      service, price_per_day, booking_date, time_slot, pickup_datetime,
-      notes, payment_method
-    } = req.body;
-
-    const appointment = await Appointment.create({
-      customerName: customer_name,
-      email, phone,
-      petName: pet_name,
-      petType: pet_type || 'Dog',
-      breed, age, service,
-      pricePerDay: price_per_day,
-      bookingDate: booking_date,
-      timeSlot: time_slot,
-      pickupDatetime: pickup_datetime,
-      notes,
-      paymentMethod: payment_method || 'cash'
-    });
-
-    // Send email notification (non-blocking)
-    sendAppointmentNotification(appointment).catch(console.error);
-
-    res.status(201).json({
-      success: true,
-      booking_id: appointment.bookingId,
-      message: `Appointment booked successfully! Booking ID: ${appointment.bookingId}`
-    });
-  } catch (err) {
-    console.error('Appointment booking error:', err);
-    res.status(500).json({ error: 'Failed to book appointment. Please try again.' });
+    const appointment = await Appointment.create(aptData);
+    dbSaved = true;
+    aptData = appointment;
+    console.log(`✅ Appointment saved to MongoDB: ${appointment.bookingId}`);
+  } catch (dbErr) {
+    console.error('❌ MongoDB save failed for appointment:', dbErr.message);
   }
+
+  // Step 2: Send emails (always, regardless of DB status)
+  sendAppointmentNotification(aptData, !dbSaved).catch(err =>
+    console.error('Admin email failed:', err.message)
+  );
+  sendCustomerConfirmation(aptData).catch(err =>
+    console.error('Customer email failed:', err.message)
+  );
+
+  // Step 3: Always return success to user
+  res.status(201).json({
+    success: true,
+    booking_id: aptData.bookingId,
+    message: `Appointment booked successfully! Booking ID: ${aptData.bookingId}. Check your email for confirmation.`,
+    saved: dbSaved
+  });
 };
 
-// GET /api/admin/appointments - Get all appointments (admin)
+// GET /api/admin/appointments
 const getAppointments = async (req, res) => {
   try {
     const { search, status } = req.query;
     let query = {};
-
     if (status) query.status = status;
     if (search) {
       query.$or = [
@@ -53,10 +67,7 @@ const getAppointments = async (req, res) => {
         { bookingId: { $regex: search, $options: 'i' } }
       ];
     }
-
     const appointments = await Appointment.find(query).sort({ createdAt: -1 });
-
-    // Map to match frontend expected field names
     const data = appointments.map(a => ({
       id: a._id,
       booking_id: a.bookingId,
@@ -81,14 +92,13 @@ const getAppointments = async (req, res) => {
       late_charges: a.lateCharges,
       created_at: a.createdAt
     }));
-
     res.json({ success: true, data });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch appointments' });
   }
 };
 
-// PUT /api/admin/appointments/:id - Update appointment (admin)
+// PUT /api/admin/appointments/:id - Update + send status email
 const updateAppointment = async (req, res) => {
   try {
     const { status, payment_status, actual_pickup_datetime } = req.body;
@@ -97,14 +107,22 @@ const updateAppointment = async (req, res) => {
     if (payment_status) update.paymentStatus = payment_status;
     if (actual_pickup_datetime) update.actualPickup = actual_pickup_datetime;
 
-    await Appointment.findByIdAndUpdate(req.params.id, update);
+    const apt = await Appointment.findByIdAndUpdate(req.params.id, update, { new: true });
+
+    // Send status update email to customer if status changed
+    if (status && apt && ['confirmed', 'cancelled', 'completed'].includes(status)) {
+      sendStatusUpdateEmail(apt, status).catch(err =>
+        console.error('Status email failed:', err.message)
+      );
+    }
+
     res.json({ success: true, message: 'Appointment updated' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to update appointment' });
   }
 };
 
-// DELETE /api/admin/appointments/:id - Delete appointment (admin)
+// DELETE /api/admin/appointments/:id
 const deleteAppointment = async (req, res) => {
   try {
     await Appointment.findByIdAndDelete(req.params.id);

@@ -14,7 +14,7 @@ function Home() {
 
   const fetchTestimonials = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/testimonials.php`)
+      const response = await axios.get(`${API_BASE_URL}/testimonials`)
       if (response.data.success) {
         setTestimonials(response.data.data.slice(0, 3))
       }

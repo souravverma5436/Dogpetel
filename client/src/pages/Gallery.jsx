@@ -14,7 +14,7 @@ function Gallery() {
 
   const fetchGallery = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/gallery.php`)
+      const response = await axios.get(`${API_BASE_URL}/gallery`)
       console.log('Gallery API Response:', response.data)
       if (response.data.success) {
         setImages(response.data.data || [])
@@ -65,8 +65,8 @@ function Gallery() {
           ) : (
             <div className="gallery-grid">
               {images.map((image) => (
-                <div key={image.id} className="gallery-item" onClick={() => openLightbox(image)}>
-                  <img src={image.image_url} alt={image.title || 'Gallery image'} />
+                <div key={image._id || image.id} className="gallery-item" onClick={() => openLightbox(image)}>
+                  <img src={image.imageUrl || image.image_url} alt={image.title || 'Gallery image'} />
                   {image.title && <div className="image-title">{image.title}</div>}
                 </div>
               ))}
@@ -79,7 +79,7 @@ function Gallery() {
         <div className="lightbox" onClick={closeLightbox}>
           <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
             <button className="close-btn" onClick={closeLightbox}>&times;</button>
-            <img src={selectedImage.image_url} alt={selectedImage.title || 'Gallery image'} />
+            <img src={selectedImage.imageUrl || selectedImage.image_url} alt={selectedImage.title || 'Gallery image'} />
             {selectedImage.title && <h3>{selectedImage.title}</h3>}
             {selectedImage.description && <p>{selectedImage.description}</p>}
           </div>

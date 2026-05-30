@@ -9,7 +9,6 @@ import Services from './pages/Services'
 import Pricing from './pages/Pricing'
 import About from './pages/About'
 import Contact from './pages/Contact'
-import Gallery from './pages/Gallery'
 import Admin from './pages/Admin'
 import { API_BASE_URL } from './config'
 
@@ -19,7 +18,7 @@ function App() {
 
   useEffect(() => {
     // Wake up the Render backend (free tier sleeps after inactivity)
-    axios.get(`${API_BASE_URL}/test.php`).catch(() => {})
+    axios.get(`${API_BASE_URL}/test`).catch(() => {})
 
     // Check if splash has been shown in this session
     const splashShown = sessionStorage.getItem('splashShown')
@@ -56,7 +55,6 @@ function App() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/gallery" element={<Gallery />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
         <Footer />

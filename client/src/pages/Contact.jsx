@@ -56,10 +56,10 @@ function Contact() {
 
   const fetchPricing = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/pricing.php`)
+      const response = await axios.get(`${API_BASE_URL}/pricing`)
       if (response.data.success && response.data.data.length > 0) {
-        // Only show dog packages
-        const dogPricing = response.data.data.filter(p => p.pet_type === 'dog')
+        // Only show dog packages - handle both MongoDB (petType) and legacy (pet_type) field names
+        const dogPricing = response.data.data.filter(p => (p.petType || p.pet_type) === 'dog')
         setPricing(dogPricing.length > 0 ? dogPricing : STATIC_PRICING)
       }
     } catch (error) {
@@ -80,7 +80,7 @@ function Contact() {
     setMessage({ type: '', text: '' })
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/contacts.php`, contactForm)
+      const response = await axios.post(`${API_BASE_URL}/contacts`, contactForm)
       setMessage({ type: 'success', text: response.data.message || 'Message sent successfully!' })
       setContactForm({ name: '', email: '', phone: '', message: '' })
       // Scroll to top to show success message
@@ -110,7 +110,7 @@ function Contact() {
     }
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/appointments.php`, appointmentForm)
+      const response = await axios.post(`${API_BASE_URL}/appointments`, appointmentForm)
       setMessage({ 
         type: 'success', 
         text: `Booking confirmed! Your booking ID is ${response.data.booking_id}. Check your email for details.` 
@@ -147,7 +147,7 @@ function Contact() {
 
   const handleServiceChange = (e) => {
     const selectedService = e.target.value
-    const priceItem = pricing.find(p => p.package_name === selectedService)
+    const priceItem = pricing.find(p => (p.packageName || p.package_name) === selectedService)
     setAppointmentForm({
       ...appointmentForm,
       service: selectedService,
@@ -348,8 +348,8 @@ function Contact() {
                     >
                       <option value="">Select Service</option>
                       {pricing.map((item) => (
-                        <option key={item.id} value={item.package_name}>
-                          {item.package_name} ({item.pet_type} - {item.duration}) - ₹{item.price}
+                        <option key={item._id || item.id} value={item.packageName || item.package_name}>
+                          {item.packageName || item.package_name} ({item.petType || item.pet_type} - {item.duration}) - ₹{item.price}
                         </option>
                       ))}
                     </select>

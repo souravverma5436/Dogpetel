@@ -28,7 +28,7 @@ function Pricing() {
 
   const fetchPricing = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/pricing.php`)
+      const response = await axios.get(`${API_BASE_URL}/pricing`)
       if (response.data.success && response.data.data.length > 0) {
         // Only show dog packages
         const dogPricing = response.data.data.filter(p => p.pet_type === 'dog')
