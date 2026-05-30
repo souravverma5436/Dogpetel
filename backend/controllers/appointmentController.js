@@ -38,12 +38,14 @@ const bookAppointment = async (req, res) => {
 
   // Step 2: Send emails (always, regardless of DB status)
   console.log(`📧 Sending appointment emails - Admin: ${process.env.ADMIN_EMAIL || 'NOT SET'}, Customer: ${aptData.email}`);
-  sendAppointmentNotification(aptData, !dbSaved).catch(err =>
-    console.error('Admin email failed:', err.message)
-  );
-  sendCustomerConfirmation(aptData).catch(err =>
-    console.error('Customer email failed:', err.message)
-  );
+  try {
+    const adminSent = await sendAppointmentNotification(aptData, !dbSaved);
+    console.log(`📧 Admin appointment email: ${adminSent ? 'SENT' : 'FAILED'}`);
+    const customerSent = await sendCustomerConfirmation(aptData);
+    console.log(`📧 Customer confirmation email: ${customerSent ? 'SENT' : 'FAILED'}`);
+  } catch (err) {
+    console.error('📧 Appointment email exception:', err.message);
+  }
 
   // Step 3: Always return success to user
   res.status(201).json({

@@ -16,14 +16,16 @@ const createTransporter = () => {
 const sendEmail = async (options) => {
   const transporter = createTransporter();
   if (!transporter) {
-    console.log('Email not configured - skipping notification');
+    console.log('⚠️ Email not configured - GMAIL_USER or GMAIL_APP_PASSWORD missing');
     return false;
   }
   try {
-    await transporter.sendMail(options);
+    const info = await transporter.sendMail(options);
+    console.log(`✅ Email sent: ${info.messageId} → ${options.to}`);
     return true;
   } catch (err) {
-    console.error('Email send error:', err.message);
+    console.error(`❌ Email send FAILED to ${options.to}: ${err.message}`);
+    console.error('Email error code:', err.code);
     return false;
   }
 };

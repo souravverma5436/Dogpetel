@@ -20,9 +20,12 @@ const submitContact = async (req, res) => {
 
   // Step 2: Send email notification (always, regardless of DB status)
   console.log(`📧 Sending contact email to: ${process.env.ADMIN_EMAIL || process.env.GMAIL_USER || 'NOT CONFIGURED'}`);
-  sendContactNotification(savedContact, !dbSaved).catch(err =>
-    console.error('Email notification failed:', err.message)
-  );
+  try {
+    const emailSent = await sendContactNotification(savedContact, !dbSaved);
+    console.log(`📧 Contact email result: ${emailSent ? 'SENT' : 'FAILED'}`);
+  } catch (err) {
+    console.error('📧 Contact email exception:', err.message);
+  }
 
   // Step 3: Always return success to user
   res.status(201).json({
