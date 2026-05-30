@@ -1,9 +1,6 @@
 <?php
 // Testimonials API
-// CORS is handled by .htaccess
-
-header('Content-Type: application/json');
-
+require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
