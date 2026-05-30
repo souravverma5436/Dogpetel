@@ -3,7 +3,7 @@ import axios from 'axios'
 import { API_BASE_URL, CONTACT_INFO } from '../config'
 import './Contact.css'
 
-// Static fallback pricing
+// Static fallback pricing - DOG ONLY
 const STATIC_PRICING = [
   { id:1, package_name:'Basic Care', pet_type:'dog', duration:'Per Day', price:500 },
   { id:2, package_name:'Standard Care', pet_type:'dog', duration:'Per Day', price:800 },
@@ -15,12 +15,6 @@ const STATIC_PRICING = [
   { id:8, package_name:'Monthly Standard', pet_type:'dog', duration:'Per Month', price:18000 },
   { id:9, package_name:'Monthly Premium', pet_type:'dog', duration:'Per Month', price:28000 },
   { id:10, package_name:'Daycare', pet_type:'dog', duration:'Per Day', price:400 },
-  { id:11, package_name:'Basic Care', pet_type:'cat', duration:'Per Day', price:400 },
-  { id:12, package_name:'Standard Care', pet_type:'cat', duration:'Per Day', price:650 },
-  { id:13, package_name:'Premium Care', pet_type:'cat', duration:'Per Day', price:950 },
-  { id:14, package_name:'Basic Care', pet_type:'bird', duration:'Per Day', price:300 },
-  { id:15, package_name:'Standard Care', pet_type:'bird', duration:'Per Day', price:500 },
-  { id:16, package_name:'Premium Care', pet_type:'bird', duration:'Per Day', price:750 },
 ]
 
 function Contact() {
@@ -64,12 +58,12 @@ function Contact() {
     try {
       const response = await axios.get(`${API_BASE_URL}/pricing.php`)
       if (response.data.success && response.data.data.length > 0) {
-        setPricing(response.data.data)
+        // Only show dog packages
+        const dogPricing = response.data.data.filter(p => p.pet_type === 'dog')
+        setPricing(dogPricing.length > 0 ? dogPricing : STATIC_PRICING)
       }
-      // else keep static fallback
     } catch (error) {
       console.error('Error fetching pricing, using static data:', error)
-      // Keep static fallback - already set as default
     }
   }
 
@@ -320,8 +314,6 @@ function Contact() {
                       onChange={(e) => setAppointmentForm({...appointmentForm, pet_type: e.target.value})}
                     >
                       <option value="Dog">Dog</option>
-                      <option value="Cat">Cat</option>
-                      <option value="Other">Other</option>
                     </select>
                   </div>
                   <div className="form-group">

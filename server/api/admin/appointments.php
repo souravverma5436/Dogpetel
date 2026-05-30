@@ -2,6 +2,7 @@
 // Admin Appointments Management API
 // CORS is handled by .htaccess in this directory
 
+require_once __DIR__ . '/../../config/admin_cors.php';
 require_once __DIR__ . '/../../config/database.php';
 
 header('Content-Type: application/json');

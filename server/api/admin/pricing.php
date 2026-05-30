@@ -2,6 +2,7 @@
 // Admin Pricing Management API
 // CORS is handled by .htaccess in this directory
 
+require_once __DIR__ . '/../../config/admin_cors.php';
 require_once __DIR__ . '/../../config/database.php';
 
 header('Content-Type: application/json');
@@ -48,7 +49,13 @@ $method = $_SERVER['REQUEST_METHOD'];
 try {
     $db = getDB();
     
-    if ($method === 'PUT') {
+    if ($method === 'GET') {
+        // Fetch only dog pricing for admin management
+        $stmt = $db->query("SELECT * FROM pricing WHERE pet_type = 'dog' ORDER BY display_order, price");
+        $pricing = $stmt->fetchAll();
+        echo json_encode(['success' => true, 'data' => $pricing]);
+    }
+    elseif ($method === 'PUT') {
         $data = json_decode(file_get_contents('php://input'), true);
         $id = $data['id'] ?? 0;
         $price = $data['price'] ?? 0;
@@ -67,5 +74,5 @@ try {
     
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Server error']);
+    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
 }
